@@ -24,6 +24,7 @@ cmake \
     -D Trilinos_ENABLE_Thyra=OFF \
     -D Trilinos_ENABLE_TESTS=OFF \
     -D Trilinos_ENABLE_NOX=ON \
+    -D NOX_ENABLE_ABSTRACT_IMPLEMENTATION_LAPACK=ON \
     -D Trilinos_ENABLE_MPI=OFF \
     -D DART_TESTING_TIMEOUT=600 \
     -D BLAS_LIBRARY_DIRS="$SPKG_LOCAL/lib" \
