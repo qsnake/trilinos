@@ -1,0 +1,31 @@
+#! /bin/sh
+
+if [ "$SPKG_LOCAL" = "" ]; then
+   echo "SPKG_LOCAL undefined ... exiting";
+   echo "Maybe run 'qsnake --shell'?"
+   exit 1
+fi
+
+
+set -e
+
+mkdir bin-dir
+cd bin-dir
+
+cmake \
+    -D CMAKE_INSTALL_PREFIX="$SPKG_LOCAL" \
+    -D CMAKE_BUILD_TYPE:STRING=DEBUG \
+    -D CMAKE_C_FLAGS:STRING="-fPIC -Wl,-V" \
+    -D CMAKE_CXX_FLAGS:STRING="-fPIC -Wl,-V" \
+    -D CMAKE_Fortran_FLAGS:STRING="-fPIC" \
+    -D Trilinos_ENABLE_PyTrilinos:BOOL=ON \
+    -D BUILD_SHARED_LIBS:BOOL=ON \
+    -D Trilinos_ENABLE_ALL_PACKAGES:BOOL=ON \
+    -D Trilinos_ENABLE_Thyra:BOOL=OFF \
+    -D Trilinos_ENABLE_TESTS:BOOL=ON \
+    -D Trilinos_ENABLE_MPI:BOOL=OFF \
+    -D DART_TESTING_TIMEOUT:STRING=600 \
+    -D BLAS_LIBRARY_DIRS:PATH="$SPKG_LOCAL/lib" \
+    -D LAPACK_LIBRARY_DIRS:PATH="$SPKG_LOCAL/lib" \
+    -D BLAS_LIBRARY_NAMES:STRING="blas;gfortran" \
+    ..
