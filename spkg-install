@@ -9,23 +9,24 @@ fi
 
 set -e
 
-mkdir bin-dir
+mkdir -p bin-dir
 cd bin-dir
 
 cmake \
     -D CMAKE_INSTALL_PREFIX="$SPKG_LOCAL" \
-    -D CMAKE_BUILD_TYPE:STRING=DEBUG \
-    -D CMAKE_C_FLAGS:STRING="-fPIC -Wl,-V" \
-    -D CMAKE_CXX_FLAGS:STRING="-fPIC -Wl,-V" \
-    -D CMAKE_Fortran_FLAGS:STRING="-fPIC" \
-    -D Trilinos_ENABLE_PyTrilinos:BOOL=ON \
-    -D BUILD_SHARED_LIBS:BOOL=ON \
-    -D Trilinos_ENABLE_ALL_PACKAGES:BOOL=ON \
-    -D Trilinos_ENABLE_Thyra:BOOL=OFF \
-    -D Trilinos_ENABLE_TESTS:BOOL=ON \
-    -D Trilinos_ENABLE_MPI:BOOL=OFF \
-    -D DART_TESTING_TIMEOUT:STRING=600 \
-    -D BLAS_LIBRARY_DIRS:PATH="$SPKG_LOCAL/lib" \
-    -D LAPACK_LIBRARY_DIRS:PATH="$SPKG_LOCAL/lib" \
-    -D BLAS_LIBRARY_NAMES:STRING="blas;gfortran" \
+    -D CMAKE_BUILD_TYPE=DEBUG \
+    -D CMAKE_C_FLAGS="-fPIC -Wl,-V" \
+    -D CMAKE_CXX_FLAGS="-fPIC -Wl,-V" \
+    -D CMAKE_Fortran_FLAGS="-fPIC" \
+    -D Trilinos_ENABLE_PyTrilinos=OFF \
+    -D BUILD_SHARED_LIBS=ON \
+    -D Trilinos_ENABLE_ALL_PACKAGES=OFF \
+    -D Trilinos_ENABLE_Thyra=OFF \
+    -D Trilinos_ENABLE_TESTS=OFF \
+    -D Trilinos_ENABLE_NOX=ON \
+    -D Trilinos_ENABLE_MPI=OFF \
+    -D DART_TESTING_TIMEOUT=600 \
+    -D BLAS_LIBRARY_DIRS="$SPKG_LOCAL/lib" \
+    -D LAPACK_LIBRARY_DIRS="$SPKG_LOCAL/lib" \
+    -D BLAS_LIBRARY_NAMES="blas;gfortran" \
     ..
