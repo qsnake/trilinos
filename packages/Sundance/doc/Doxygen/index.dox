@@ -1,0 +1,131 @@
+/* @HEADER@ */
+# ************************************************************************
+# 
+#                              Sundance
+#                 Copyright (2005) Sandia Corporation
+# 
+# Copyright (year first published) Sandia Corporation.  Under the terms 
+# of Contract DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government 
+# retains certain rights in this software.
+# 
+# This library is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+#  
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#                                                                                 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA                                                                                
+# Questions? Contact Kevin Long (krlong@sandia.gov), 
+# Sandia National Laboratories, Livermore, California, USA
+# 
+# ************************************************************************
+/* @HEADER@ */
+
+using SundanceStdFwk::CellFilter;
+using SundanceStdFwk::QuadratureFamily;
+
+
+/*! \mainpage Sundance 
+
+<H2> Introduction </H2>
+
+%Sundance is a system for rapid development of high-performance parallel finite-element 
+solutions of partial differential equations.  It is built on top of an engine
+for in-place Frechet differentiation of symbolic objects, thereby enabling
+differentiable simulations for use in optimization, uncertainty 
+quantification, and adaptive error control.
+
+ 
+The motivation for creating %Sundance is a conviction 
+that you should be able to code a finite element
+problem using the same level of abstraction you would use 
+to describe the problem and its discretization
+on a blackboard. %Sundance provides a set of 
+high-level components with which you
+can specify and solve a problem. The high-level nature of 
+the components 
+means that you need not worry about tedious and error-prone 
+bookkeeping details. 
+In addition to the advantage of
+conceptual simplicity and freedom from bookkeeping, 
+this component-based approach allows a high
+degree of flexibility in the formulation, discretization, and solution
+of a problem. 
+<br>
+<br>
+Please send any questions or comments to 
+<A HREF="mailto:kevin.long@ttu.edu"> Kevin Long </A>
+<br><br> <b>WARNING: This documentation is sometimes
+incomplet, inackurate, and is 
+very much a work in progress trying to keep up with 
+a rapidly-evolving project.</b>
+
+<H2> PySundance </H2>
+
+Python wrappers for most Sundance capabilities are now available. These
+greatly simplify simulator development. See the \ref installation_page
+page for information on how to set up PySundance.
+
+<H2> Getting Started </H2>
+<ul>
+<li> \ref downloads_page
+<li> \ref licensing_page 
+<li> \ref installation_page instructions. Because Sundance depends 
+on having certain
+other packages installed, simply doing <tt>"configure; make"</tt> won't work.
+Please read the \ref installation_page page for information on what
+software must be installed first, and on how to choose <tt>configure</tt>
+options for Sundance.
+<li> <A HREF="PythonBuilds.html">
+Prebuilt shared libraries for PySundance
+</A>
+are available for some platforms.
+<li> There is a short <b><A HREF="Tutorial.pdf"> tutorial </A></b>
+on setting up linear and nonlinear PDE simulations.
+<li> \ref contrib_page
+<li> \ref DevelopersGuidePage
+</ul>
+
+<H2> User's Guide </H2>
+
+An online \ref users_guide is available.
+
+<H2> Sandia Software </H2>
+
+Other software for computational mathematics 
+is available at the <A HREF="http://software.sandia.gov/">
+Sandia math software server. </A>
+
+<H2> People </H2>
+
+<ul>
+<li> <A HREF="http://www.math.ttu.edu/~klong/"> Kevin Long </A>
+-- Texas Tech University. Email <A HREF="mailto:kevin.long@ttu.edu"> kevin.long@ttu.edu </A>
+<li> <A HREF="http://www.acm.caltech.edu/people/students.shtml"> Catherine Beni </A>
+-- Caltech. 
+<li> <A HREF="http://csmr.ca.sandia.gov/~ptboggs/"> Paul Boggs </A>
+--  Sandia National Laboratories, Livermore. 
+<li> <A HREF="http://people.cs.uchicago.edu/~kirby/"> Robert Kirby </A>
+-- Texas Tech University. 
+<li> <A HREF="http://csmr.ca.sandia.gov/~margoli/"> Steve Margolis </A>
+--  Sandia National Laboratories, Livermore. 
+<li> <A HREF="http://www4.ncsu.edu/~jpreese/"> Jill Reese </A>
+-- North Carolina State University. 
+<li> <A HREF="http://www.usc.edu/dept/civil_eng/dept/faculty-staff/student-directory/"> George Saad </A>
+-- University of Southern California. 
+<li> <A HREF="http://people.cs.uchicago.edu/~aterrel/"> Andy Terrel </A>
+-- University of Chicago. 
+<li> <A HREF="http://www.cs.sandia.gov/~bartv/"> Bart van Bloemen Waanders </A>
+-- Sandia National Laboratories, Albuquerque. 
+</ul>
+
+
+
+*/

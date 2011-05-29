@@ -1,0 +1,85 @@
+\documentclass[letter]{report}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\input{config.tex}
+
+\pagestyle{empty}
+
+\title{ {\LARGE\bf 
+        MESQUITE \\ Mesh Quality Improvement Toolkit \\ \vspace{.5cm} User's Guide\\
+}}
+
+\author{Patrick Knupp \\
+The Sandia National Laboratories \\
+Albuquerque NM USA \\
+ \\
+Lori Freitag-Diachin \\
+Livermore National Laboratory \\
+Livermore CA USA \\
+%  \\
+%Thomas Leurent \\
+%Argonne National Laboratory \\
+%Argonne, IL 60490 USA \\
+  \\
+Jason Kraftcheck \\
+University of Wisconsin--Madison \\
+Madison, WI 53706 USA}
+
+\date{Last Updated: 4 November, 2009}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+%\listoffigures
+
+%\listoftables
+
+% Introduction to Mesquite
+\srcinclude{intro.tex}
+
+% Installing Mesquite
+\srcinclude{install.tex}
+
+% Examples
+\srcinclude{examples.tex}
+
+% Getting Mesh Into Mesqite
+\srcinclude{data.tex}
+
+% Constraining Mesh to a Geometric Domain
+\srcinclude{geom.tex}
+
+% Mesquite Wrapper Descriptions
+\srcinclude{wrappers.tex}
+ 
+% Parallel Mesquite 
+\srcinclude{parallel.tex}
+
+%\srcinclude{api.tex}
+
+%\srcinclude{extend.tex}
+
+%\srcinclude{trouble.tex}
+
+%\srcinclude{caveats.tex}
+
+\srcinclude{support.tex}
+
+\appendix
+
+\srcinclude{team.tex}
+
+\srcinclude{ack.tex}
+
+\bibliographystyle{plain}
+\srcbibliography{mesquite}
+
+
+\end{document}
+

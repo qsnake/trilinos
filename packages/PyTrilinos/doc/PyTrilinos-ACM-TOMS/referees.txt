@@ -1,0 +1,111 @@
+Dear Dr. Gladwell,
+
+please find below the answers to the referee's comments.
+
+
+> pg 16/31:  You mention Numeric and Numarray, but not NumPy which is both of
+> their successors.   NumPy has much better sub-classing support than Numeric,
+> for example.  While understandably NumPy is new, it should at least be
+> referenced in this section. 
+
+A reference on NumPy has been added. We agree that the "future" is on the
+NumPy side, and in fact PyTrilinos has been modified to support NumPy (see
+discussion below).
+
+> pg 16/31:  You are confusing a little-bit the capabilities of ScientificPython
+> and SciPy.  ScientificPython does not support special functions nor signal
+> processing, but SciPy does.  ScientificPython is a collection of mostly Python
+> classes while SciPy is a collection of mostly extension modules to make Python
+> comparable to MATLAB/IDL in functionality.  Also, new versions of SciPy are no
+> longer supporting plotting.  The rest of the discussion is good. 
+
+These changes have been made.
+
+> pg 19:  end of second paragraph "of the elements of X and B" is confusing
+> should the first "of" be "as"?
+
+The paragraph says that, typically, the rows of the linear system matrix are
+distributed in the same way of both the X and B vectors -- that is, X and B
+have the same data layout, which is the same of the matrix. We have slightly
+modified the sentence to make it clear to the reader what we intend.
+
+> pg 26:  There have been several conference discussions of the performance of
+> weave and when it is likely to win over slice syntax.  In particular, the
+> creation of temporary arrays using slice syntax which are not needed when
+> using C++ and weave is an important factor.   You should at least mention the
+> creation of temporaries and perhaps try to reference one of the conference
+> presentations by Jones.
+
+This paragraph has been changed to reflect the more general issue of
+efficiency between weave and slice syntax, including a citation of
+Jones and Miller.
+
+> pg 27:  You mention the stability of Numeric.  However, Numeric is not
+> supported at all anymore, so you will need to re-word this section somehow.
+> Porting to use NumPy should not be difficult, however.  The old Numeric C-API
+> is supported.  You inherit from UserArray which no longer exists, because
+> NumPy arrays can be inherited from directly (though you may have to change at
+> least the __init__ file).   You may find that inheriting from the NumPy
+> ndarray is actually easier.  
+
+From the 7.0 release of Trilinos (currently available for download),
+PyTrilinos is based on NumPy, exactly for the reasons mentioned above. A
+discussion on NumPy has been added to the text. Because of the organization of
+PyTrilinos, it has been relatively easy to move from Numarray to NumPy: in
+fact, only a few files of the Epetra/Python interface had to be modified.
+Therefore, should it be necessary, it would be easy to move PyTrilinos to
+other packages.
+
+> You mention use of SWIG, but it has been shown that Boost, SIP, PyRex and
+> ctypes can be used to generate faster interfaces.   It is not essential that
+> you compare them all, but you should at least reference these approaches in
+> your discussion.  In particular a Boost wrapper to Trilinos is natural.   
+
+A discussion on this subject has been added. We agree that other approaches
+may give better results; however SWIG was quite easy to use so, for the time
+being, we don't feel of changing strategy. Besides, as long as PyTrilinos is
+used for coarse-grained scripts, the interface overhead is really minimal. Of
+course, fine-grained scripts may take advantage of better interface
+generators; however the reported results based on the weave module are
+encouraging.
+
+> pg 28: 
+> * Portability might be improved using numpy.distutils
+
+As the text now reflects, the Trilinos Project handles portability via
+autotools/automake/autoconf.  For the python wrappers to Trilinos, a
+second layer of portability support is added, whereby the generated
+Makefiles call a conventional python setup.py script that imports the
+distutils module.  Almost all of our portability issues are at the top
+level, and we have found distutils to be satisfactory at the second
+level.
+
+> * Compile-time checks can be aided through the use 
+>   of  decorators (new in Python 2.4) and Traits (from Enthought).  But,
+>   compile-time checks are barely worthin mentioning because nothing
+>   beats unit-tests.
+
+We added a sentence on decorators.
+
+> * Management of C/C++ arrays is usually better 
+>   handled using automatic conversions from NumPy arrays rather than
+>   Python Lists. 
+
+The sentence was badly written -- in fact, we were thinking to generic Python
+objects as wrappers for C/C++ arrays. The paragraph has been reworded.
+
+> * Limited template support:  It is true that Python 
+>   doesn't use templates, however, it would not be difficult to use
+>   Python to support template-aware wrappers.  In other words, wrappers
+>   could be generated on-the fly as users demanded a particular
+>   data-type. 
+
+We are not sure what the reviewer is suggesting here.  The current
+architecture is that a PyTrilinos module imports a compiled extension
+module, and that extension module must be designed a-priori with
+concrete instantiations of any templated code.  So the mechanism for
+generating such wrappers on the fly is not clear to us (although with
+in-line compilation systems such as weave, not beyond our imagination,
+either).  We consider the suggestion to be an intriguing one, but
+there are no current plans to offer this type of support in
+PyTrilinos, so we do not include it in the paper.

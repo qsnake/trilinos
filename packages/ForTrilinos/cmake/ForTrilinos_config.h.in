@@ -1,0 +1,48 @@
+/* src/ForTrilinos_Config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define if want to build ForTrilinos-examples */
+#cmakedefine HAVE_FORTRILINOS_EXAMPLES
+
+/* Define if want to build ForTrilinos-tests */
+#cmakedefine HAVE_FORTRILINOS_TESTS
+
+/* Define if want to build examples */
+#cmakedefine HAVE_EXAMPLES
+
+/* Define if you want to build export makefiles. */
+#cmakedefine HAVE_EXPORT_MAKEFILES
+
+/* Define if you are using gnumake - this will shorten your link lines. */
+#cmakedefine HAVE_GNUMAKE
+
+/* define if we want to use ForTrilinos assertions */
+#cmakedefine ForTrilinos_ASSERTIONS
+
+/* define if we want to use MPI */
+#cmakedefine HAVE_MPI
+
+/* Define if want to build tests */
+#cmakedefine HAVE_TESTS
+
+/* Define if want to build teuchos-complex */
+#cmakedefine HAVE_TEUCHOS_COMPLEX
+
+/* If OO-Fortran features should be built */
+#cmakedefine ForTrilinos_ENABLE_EXTENDED
+
+/* If Amesos is built */
+#cmakedefine HAVE_FORTRILINOS_AMESOS
+#cmakedefine ForTrilinos_ENABLE_Amesos
+
+/* If AztecOO is built */
+#cmakedefine HAVE_FORTRILINOS_AZTECOO
+#cmakedefine ForTrilinos_ENABLE_AztecOO
+
+/* If Ifpack is built */
+#cmakedefine HAVE_FORTRILINOS_IFPACK
+#cmakedefine ForTrilinos_ENABLE_Ifpack
+
+/* If Galeri is built */
+#cmakedefine HAVE_FORTRILINOS_GALERI
+#cmakedefine ForTrilinos_ENABLE_Galeri
+

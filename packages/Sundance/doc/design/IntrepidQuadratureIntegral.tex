@@ -1,0 +1,151 @@
+\documentclass{article}
+
+\author{Robert C. Kirby, Kevin R. Long and Bart van Bloemen Waanders}
+\title{Redesign of the \texttt{QuadratureIntegral} class to support non-scalar functions}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+As the symbolic system within Sundance is extended to support 
+\( H(\mathrm{div}) \) and \( H(\mathrm{curl}) \) elements, it is
+necessary for the element integration routines to support a wider
+range of integrands.  This document attempts to enumerate the types
+of computations necessary.
+
+To establish some terminology, we divide expressions functionals,
+linear forms, and bilinear forms.  A functional has
+no test or trial functions and simply returns a number.  A linear form
+constructs a vector, and it contains a test function but no unknown function.
+This paradigm is needed for 
+\begin{enumerate}
+\item Residual evaluation for Newton's method
+\item Matrix-free application of a stiffness matrix
+\item Formation of the load vector
+\end{enumerate}
+Finally, a bilinear form provides a matrix over each mesh entity and must
+contain a test and trial function.
+
+Nonlinearities, etc, are handled by the symbolic and discrete function
+systems and are already tabulated at quadrature points before being
+passed into the quadrature integral evaluation.
+
+\section{Functionals}
+Nothing to do.
+
+\section{Linear forms}
+For linear forms, we may distinguish several cases, based on which space
+the test function \( v \) lives in (\(H^1\), \( H(\mathrm{div}) \), or
+\( H(\mathrm{curl}) \).
+\subsection{Linear forms with \( H^1 \) test functions}
+For the current version of Sundance (not recognizing gradients as
+such), we will need to support operations of the form:
+\[
+\int f v
+\]
+and
+\[
+\int f D_i v,
+\]
+where the integral could be over a maximal cell or perhaps a
+particular facet.  \( D_i \) is the partial derivative operator in
+a particular Cartesian direction.
+
+In the future, we will have vector-valued
+functions, and will need to support linear forms of the form
+\[
+\int \tilde{f} \cdot \nabla v,
+\]
+where \( \tilde{f} \) is some known vector.  We will also want to
+support
+\[
+\int f (\nabla u \cdot n)
+\]
+over boundary facets.  This is properly a scalar operation, but relies
+on recognizing the gradient as a particular entity.
+
+
+\subsection{Linear forms with \( H(\mathrm{div}) \) test functions}
+For now, Sundance will only recognize scalar entities, so we need 
+\[
+\int f v_i,
+\]
+where \( v_i \) is the \(i^\mathrm{th}\) component of a vector in \(
+H(\mathrm{div}) \).  We will also need
+\[
+\int f ( \nabla \cdot \tilde{v} )
+\]
+on cells and
+\[
+\int f (\tilde{v} \cdot n)
+\]
+on 1-cofacets, where \( n \) is a normal vector.  These last
+expressions are nice because they correspond to boundary degrees of
+freedom in the \( H(\mathrm{div}) \) finite element spaces.
+
+With full vector-valued symbolics, we also want to support
+\[
+\int f \cdot \tilde{v}
+\]
+
+Note that general traces are not well-defined on \( H(\mathrm{div}) \),
+so we need to be careful in what we allow.  However, DG-type methods
+and \emph{a posteriori} error estimates also sometimes require
+tangential components of these fields on boundaries, so supporting
+these operations as well makes sense.
+
+\subsection{Linear forms on \(H(\mathrm{curl})\)}
+
+
+\section{Bilinear forms}
+There is the potential for some combinatorial blow-up in the cases we
+need to handle for bilinear forms, as we must support pairs of test and trial
+spaces.  
+
+\subsection{\( H^1 \) test and trial spaces}
+Currently, if both test and trial spaces are \( H^1 \), we
+will need to support 
+\[
+\int f u v
+\]
+\[
+\int f u D_j v
+\]
+\[
+\int f D_i u v
+\]
+\[
+\int f D_i u D_j v
+\]
+
+Eventually, this will need to be extended to support
+\[
+\int f \nabla u \cdot \nabla v
+\]
+and
+\[
+\int ( A \nabla u ) \cdot \nabla v,
+\]
+where \( A \) is some tensor.
+
+\subsection{\( H^1 \) trial and \( H(\mathrm{div}) \) test space}
+For now, for trial function \( u \in H^1 \) and test function \(
+\tilde{v} \in H(\mathrm{div}) \), we need to support operations
+\[
+\int f u v_i
+\]
+where \( v_i \) is a component of an \( H(\mathrm{div}) \) function and
+\[
+\int f u \left( \nabla \cdot \tilde{v} \right).
+\]
+We also need
+\[
+\int f u (\tilde{v} \cdot n)
+\]
+on facets.
+
+In the future, we need more combinatorial explosion to handle
+gradients times vectors, etc.  We also need to put \( H(\mathrm{curl})
+\) in the mix.
+
+\end{document}

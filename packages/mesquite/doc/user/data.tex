@@ -1,0 +1,170 @@
+\chapter{Getting Mesh Into Mesquite}
+\label{sec:meshes}
+
+The application must provide Mesquite with data on which to operate.  The two
+fundamental classes of information Mesquite requires are:
+\begin{itemize}
+\item Mesh vertex coordinates and element connectivity, and
+\item Constraints on vertex movement.
+\end{itemize}
+In this chapter we will assume that the only constraint available for vertex movement is to flag the vertices as fixed.  More advanced constraints such as vertices following geometric curves or surfaces are discussed in the following chapter.  
+
+The mesh data expected as input to Mesquite is a set of vertices and elements.  Each vertex has associated with it a fixed flag, a ``byte'', and x, y, and z coordinate values.  The fixed flag is used as input only.  It indicates whether or not the corresponding vertex position should be fixed (i.e., coordinates not allowed to change) during the optimization.  The ``byte'' is one byte of Mesquite-specific working data assocaited with each vertex (currently only used for vertex culling.)   The coordinate values for each vertex serve as both input and output: as input they are the initial positions of the vertices and as output they are the optimized positions.  
+
+Each element of the input mesh has associated with it a type and a list of vertices.  The type is one of the values defined in \texttt{Mesquite::EntityTopology} (\texttt{Mesquite.hpp}).  It specifes the topology (type of shape) of the element. Currently supported element types are triangles, quadrilaterals, 
+tetrahdra, hexahedra, triangular wedges, and pyramids.  The list of vertices (commonly referred to as the ``connectivity'') define the geometry (location and variation of shape) for the element.  The vertices are expected to be occur in a pre-defined order specific to the element topology. Mesquite uses the canonical ordering defined in the ExodusII specification\cite{exodus}.
+
+For some more advanced capabilities, Mesquite may require the ability to attach arbitrary peices of data (called ``tags'') to mesh elements or vertices.
+
+\section{The \texttt{Mesquite::Mesh} Interface} \label{sec:MeshData}
+
+The \texttt{Mesquite::Mesh} class (\texttt{MeshInterface.hpp}) defines the interface Mesquite uses to interact with mesh data.  In C++ this means that the class defines a variety of pure virtual (or abstract) functions for accessing mesh data.  An application may implement a subclass of \texttt{Mesquite::Mesh}, providing implementations of the virtual methods that allow Mesquite direct access to the applications in-memory mesh representation.  
+
+The \texttt{Mesquite::Mesh} interface defines functions for operations such as:
+\begin{itemize}
+\item Get a list of all mesh vertices.
+\item Get a list of all mesh elements.
+\item Get a property of a vertex (coordinates, fixed flag, etc.)
+\item Set a property of a vertex (coordinates, ``byte'', etc.)
+\item Get the type of an element
+\item Get the vertices in an element
+\end{itemize}
+It also defines other operations that are only used for certain optimization algorithms:
+\begin{itemize}
+\item Get the list of elements for which a specific vertex occurs in the connetivity list.
+\item Define a ``tag'' and use it to associate data with vertices or elements.
+\end{itemize}
+
+Mesh entities (vertices and elements) are referenced in the \texttt{Mesquite::Mesh} interface using `handles'.  There must be a unique handle
+space for all vertices, and a separate unique handle space for all elements. 
+That is, there must be a one-to-one mapping between handle values and vertices,
+and a one-to-one mapping between handle values and elements.  The storage type of
+the handles is specified by 
+\begin{center}
+\texttt{Mesquite::Mesh::VertexHandle} and \texttt{Mesquite::Mesh::ElementHandle}.
+\end{center}
+The handle types are of sufficient size
+to hold either a pointer or an index, allowing the underlying implementation of
+the \texttt{Mesquite::Mesh} interface to be either pointer-based or index-based. 
+All mesh entities are referenced using handles.  For example, the
+\texttt{Mesquite::Mesh} interface declares a method to retrieve the list of all
+vertices as an array of handles and a method to update the coordinates of a
+vertex where the vertex is specified as a handle.
+
+It is recommended that the application invoke the Mesquite optimizer for subsets
+of the mesh rather than the entire mesh whenever it makes sense to do so.  For
+example, if a mesh of two geometric volumes is to be optimized and all mesh
+vertices lying on geometric surfaces are constrained to be fixed (such vertices
+will not be moved during the optimization) then optimizing each volume separately
+will produce the same result as optimizing both together.  
+
+
+\section{ITAPS iMesh Interface}
+
+The ITAPS Working Group has defined a standard API for exchange of mesh data between applications.  The iMesh interface\cite{imesh} defines a superset of the functionality required for the \texttt{Mesquite::Mesh} interface.  Mesquite can access mesh through an iMesh interface using the \texttt{Mesquite::MsqIMesh} class declared in \texttt{MsqIMesh.hpp}.  This class is an ``adaptor'':  it presents the iMesh interface as the \texttt{Mesquite::Mesh} interface.  
+
+
+\section{Accessing Mesh In Arrays} \label{sec::ArrayMesh}
+
+One common representation of mesh in applications is composed of simple 
+coordinate and index arrays.  Mesquite provides the \texttt{ArrayMesh} implementation of the \texttt{Mesquite::Mesh} interface to allow Mesquite
+to access such array-based mesh definitions directly.  The mesh must be
+defined as follows:
+\begin{itemize}
+\item Vertex coordinates must be stored in an array of double-precision
+      floating-point values.  The coordinate values must be interleaved,
+      meaning that the x, y, and z coordinate values for a single vertex
+      are contiguous in memory.
+\item The mesh must be composed of a single element type.
+\item The element connectivity (vertices in each element) must be stored
+      in an interleaved format as an array of long integers.  The vertices
+      in each element are specified by an integer \texttt{i}, where the location       of the coordinates of the corresponding vertex is located at position
+      \texttt{3*i} in the vertex coordinates array.
+\item The fixed/boundary state of the vertices must be stored in an array
+      of integer values, where a value of 1 indicates a fixed vertex and a 
+      value of 0 indicates a free vertex.  The values in this array must
+      be in the same order as the corresponding vertex coordinates in the
+      coordinate array.
+\end{itemize}
+
+The following is a simple example of using the ArrayMesh object to pass
+Mesquite a mesh containing four quadrilateral elements.
+\begin{verbatim}
+/** define some mesh **/
+    /* vertex coordinates */
+  double coords[] = { 0, 0, 0,
+                      1, 0, 0,
+                      2, 0, 0,
+                      0, 1, 0,
+                     .5,.5, 0,
+                      2, 1, 0,
+                      0, 2, 0,
+                      1, 2, 0,
+                      2, 2, 0 };
+    /* quadrileratal element connectivity (vertices) */
+  long quads[] = { 0, 1, 4, 3,
+                   1, 2, 5, 4,
+                   3, 4, 7, 6,
+                   4, 5, 8, 7 };
+    /* all vertices except the center on are fixed */
+  int fixed[] = { 1, 1, 1,
+                  1, 0, 1,
+                  1, 1, 1 };
+  
+/** create an ArrayMesh to pass the above mesh into Mesquite **/
+  
+  ArrayMesh mesh( 
+      3,            /* 3D mesh (three coord values per vertex) */
+      9,            /* nine vertices */
+      coords,       /* the vertex coordinates */ 
+      fixed,        /* the vertex fixed flags */
+      4,            /* four elements */
+      QUADRILATERAL,/* elements are quadrilaterals */
+      quads );      /* element connectivity */
+  
+/** smooth the mesh **/
+  
+    /* Need surface to constrain 2D elements to */
+    PlanarDomain domain( PlanarDomain::XY );
+
+  MsqError err;
+  ShapeImprovementWrapper shape_wrapper( err );
+  if (err) {
+    std::cout << err << std::endl;
+    exit (2);
+  }
+  
+  shape_wrapper.run_instructions( &mesh, &domain, err );
+  if (err) {
+    std::cout << "Error smoothing mesh:" << std::endl
+              << err << std::endl;
+  }
+  
+/** Output the new location of the center vertex **/
+  std::cout << "New vertex location: ( "
+            << coords[12] << ", " 
+            << coords[13] << ", " 
+            << coords[14] << " )" << std::endl;
+\end{verbatim}
+
+NOTE:  When using the \texttt{ArrayMesh} interface, the application is responsible for managing the storage of the mesh data.  The \texttt{ArrayMesh}
+ does NOT copy the input mesh.  
+
+ 
+\section{Reading Mesh From Files} \label{sec:meshFiles}
+
+Mesquite provides a concrete implementation of the \texttt{Mesquite::Mesh} named
+\texttt{Mesquite::MeshImpl}.  This implementation is capable of reading mesh from
+VTK\cite{VTKbook, VTKuml} and optionally ExodusII files. See Sections 
+\ref{sec:depends} and \ref{sec:compiling} for more 
+information regarding the optional support for ExodusII files.
+
+The `fixed' flag for vertices can be specified in VTK files by defining a
+SCALAR POINT\_DATA attribute with values of 0 or 1, where 1 indicates that the
+corresponding vertex is fixed.  The \texttt{Mesquite::MeshImpl} class is capable
+of reading and storing tag data 
+%(see Section \ref{tags}) 
+using VTK attributes and
+field data.  The current implementation writes version 3.0 of the VTK file format
+and is capable of reading any version of the file format up to 3.0.  
+

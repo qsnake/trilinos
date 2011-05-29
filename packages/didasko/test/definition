@@ -1,0 +1,18 @@
+PACKAGE_NAME=Didasko
+
+#
+# FRAMEWORK group
+#
+
+(FRAMEWORK, DidaskoExamples) {
+    DIRS = ../examples/epetra,
+           ../examples/epetraext,
+           ../examples/aztecoo,
+          #../examples/ifpack,
+           ../examples/amesos,
+           ../examples/teuchos,
+          #../examples/triutils,
+           ../examples/ml,
+           ../examples/nox;
+    COMM = SERIAL, MPI(1-4);
+}

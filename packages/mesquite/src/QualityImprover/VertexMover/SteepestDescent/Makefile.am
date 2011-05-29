@@ -1,0 +1,8 @@
+SRC_STEEPESTDESCENT_DIR = src/QualityImprover/VertexMover/SteepestDescent
+MSQ_INCLUDES += -I$(top_srcdir)/$(SRC_STEEPESTDESCENT_DIR)
+INCLUDED_MAKEFILES += $(SRC_STEEPESTDESCENT_DIR)/Makefile.am
+
+MSQ_SRCS += $(SRC_STEEPESTDESCENT_DIR)/SteepestDescent.cpp 
+
+MSQ_HDRS += $(SRC_STEEPESTDESCENT_DIR)/SteepestDescent.hpp 
+

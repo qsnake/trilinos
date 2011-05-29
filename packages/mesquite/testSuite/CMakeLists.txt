@@ -1,0 +1,92 @@
+# Define Macro for adding tests
+
+IF (NOT ${PROJECT_NAME} STREQUAL "Mesquite")
+    INCLUDE(PackageAddTest)
+ENDIF()
+
+
+IF(${PACKAGE_NAME}_ENABLE_SHARED)
+  SET( TEST_DEFINES "${MESQUITE_DEFINES}" )
+ELSE()
+  SET( TEST_DEFINES "${MESQUITE_DEFINES} -DMESQUITE_STATIC_LIB" )
+ENDIF()
+
+MACRO(MSQ_ADD_TEST name exe)
+  IF (NOT ${PROJECT_NAME} STREQUAL "Mesquite")
+    PACKAGE_ADD_EXECUTABLE( ${exe} SOURCES ${ARGN} )
+    PACKAGE_ADD_TEST( ${exe} NAME ${name} NUM_MPI_PROCS 1 )
+    #TARGET_LINK_LIBRARIES( ${exe} mesquite )
+  ELSE(NOT ${PROJECT_NAME} STREQUAL "Mesquite")
+    IF (${PACKAGE_NAME}_ENABLE_TESTS)
+      ADD_EXECUTABLE( ${exe} ${ARGN} )
+      ADD_TEST( ${name} ${EXECUTABLE_OUTPUT_PATH}/${exe} )
+      TARGET_LINK_LIBRARIES( ${exe} mesquite )
+    ENDIF(${PACKAGE_NAME}_ENABLE_TESTS)
+  ENDIF(NOT ${PROJECT_NAME} STREQUAL "Mesquite")
+  SET_SOURCE_FILES_PROPERTIES(${ARGN} COMPILE_FLAGS "-DSRCDIR=\"\\\"${CMAKE_CURRENT_SOURCE_DIR}/\\\"\" ${TEST_DEFINES}")
+ENDMACRO(MSQ_ADD_TEST)
+
+
+# Create meshfiles.h
+
+IF(NOT DEFINED ${PACKAGE_SOURCE_DIR})
+  SET(PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+ENDIF()
+SET(meshfiles_h_contents "#ifndef MESH_FILES_DIR\n# define MESH_FILES_DIR \"${PACKAGE_SOURCE_DIR}/meshFiles/\"\n#endif\n" )
+IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/meshfiles.h)
+  FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/meshfiles.h ${meshfiles_h_contents} )
+ENDIF()
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+
+
+
+# All tests are in subdirs
+
+ADD_SUBDIRECTORY(2d_formulation)
+ADD_SUBDIRECTORY(2d_metrics)
+ADD_SUBDIRECTORY(2d_target)
+ADD_SUBDIRECTORY(ActiveSetTest)
+ADD_SUBDIRECTORY(algorithm_test)
+ADD_SUBDIRECTORY(analytical_grad_3D)
+ADD_SUBDIRECTORY(headers)
+ADD_SUBDIRECTORY(high_aspect_ratio)
+ADD_SUBDIRECTORY(higher_order)
+ADD_SUBDIRECTORY(idft_time)
+ADD_SUBDIRECTORY(laplacian_test)
+ADD_SUBDIRECTORY(laplacian_wrapper_test)
+ADD_SUBDIRECTORY(pyramid)
+ADD_SUBDIRECTORY(simple_hybrid_test)
+ADD_SUBDIRECTORY(size_adapt_shape)
+ADD_SUBDIRECTORY(slaved)
+ADD_SUBDIRECTORY(synchronous)
+ADD_SUBDIRECTORY(test_1)
+ADD_SUBDIRECTORY(transform)
+ADD_SUBDIRECTORY(tutorial)
+ADD_SUBDIRECTORY(untangle_test)
+ADD_SUBDIRECTORY(viscous_cfd)
+ADD_SUBDIRECTORY(wedge)
+ADD_SUBDIRECTORY(wrapper_tests)
+
+IF(${PACKAGE_NAME}_ENABLE_IMESH)
+  ADD_SUBDIRECTORY(imesh)
+ENDIF()
+
+IF(${PACKAGE_NAME}_ENABLE_IGEOM)
+  ADD_SUBDIRECTORY(igeom)
+ENDIF()
+
+# Check for libraries
+FIND_LIBRARY( CPPUNIT_LIBRARY NAMES cppunit )
+FIND_PATH( CPPUNIT_INCLUDES cppunit/extensions/HelperMacros.h )
+
+# Cannot build unit tests with Windows DLL because
+# internal symbols are not exposed
+IF (EXISTS ${CPPUNIT_LIBRARY} AND IS_DIRECTORY ${CPPUNIT_INCLUDES})
+  IF(WIN32 OR WIN64)
+    IF(NOT ${PACKAGE_NAME}_ENABLE_SHARED)
+      ADD_SUBDIRECTORY(unit)
+    ENDIF()
+  ELSE()
+    ADD_SUBDIRECTORY(unit)
+  ENDIF()
+ENDIF()

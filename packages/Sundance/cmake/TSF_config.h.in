@@ -1,0 +1,37 @@
+/* src-solvers/TSF_config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* define if we want to use Chaco */
+#cmakedefine HAVE_CHACO
+
+/* define if we want to use MOOCHO */
+#cmakedefine HAVE_ENABLED_MOOCHO
+
+/* define if we want to use EXODUS I/O in Sundance */
+#cmakedefine HAVE_EXODUS
+
+/* define if we want to use FIAT */
+#cmakedefine HAVE_FIAT
+
+/* define if we want to use MPI */
+#cmakedefine HAVE_MPI
+
+/* define if we want to use SUNDIALS */
+#cmakedefine HAVE_SUNDIALS
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#cmakedefine HAVE_UNISTD_H
+
+/* Name of package */
+#cmakedefine PACKAGE
+
+/* define if we are using Trilinos 7.0.x */
+#cmakedefine TRILINOS_7
+
+/* define if we are using Trilinos 8.0.x */
+#cmakedefine TRILINOS_8
+
+/* define if we are using the development version of Trilinos */
+#cmakedefine TRILINOS_DEV
+
+/* Version number of package */
+#cmakedefine VERSION

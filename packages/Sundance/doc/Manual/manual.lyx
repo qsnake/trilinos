@@ -1,0 +1,8838 @@
+#LyX 1.6.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass report
+\begin_preamble
+\usepackage{color}
+\usepackage{moreverb}
+
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\fdo}[1]{\mathcal{D}_{#1}}
+\newcommand{\sdo}[1]{D_{#1}}
+\newcommand{\tdo}[1]{D_{#1}}
+\newcommand{\fd}[2]{\fdo{#1} #2}
+\newcommand{\sd}[2]{\sdo{#1} #2}
+\newcommand{\td}[2]{\tdo{#1} #2}
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pddd}[2]{\frac{\partial^3 #1}{\partial #2^3}}
+\newcommand{\pmix}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+\newcommand{\pmixx}[4]{\frac{\partial^3 #1}{\partial #2 \partial #3 \partial #4}}
+\newcommand{\funcd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\spaced}[2]{{\cal D}^{#1} #2}
+\newcommand{\totald}[2]{{D}^{#1} #2}
+
+\newcommand{\abs}[1]{\left\vert{#1}\right\vert}
+\newcommand{\od}[2]{\frac{d #1}{d #2}}
+\newcommand{\odd}[2]{\frac{d^2 #1}{d #2^2}}
+\newcommand{\R}{\mathbb{R}}
+
+\definecolor{lightgray}{rgb}{0.9,0.9,0.9}
+\definecolor{red}{rgb}{0.5,0.0,0.0}
+\definecolor{green}{rgb}{0.0,0.5,0.0}
+
+\lstset{language=C++,tabsize=2,backgroundcolor=\color{lightgray}}
+\lstset{frame=single}
+\lstset{basicstyle=\ttfamily\small}
+\lstset{commentstyle=\itshape}
+\end_preamble
+\options xcolor=dvipsnames
+\use_default_options true
+\begin_modules
+theorems-ams
+theorems-ams-extended
+\end_modules
+\language english
+\inputencoding auto
+\font_roman palatino
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\branch answers
+\selected 1
+\color #5555ff
+\end_branch
+\leftmargin 0.9in
+\topmargin 0.75in
+\rightmargin 0.9in
+\bottommargin 0.75in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Sundance user's manual
+\end_layout
+
+\begin_layout Author
+Various contributors
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Introduction
+\end_layout
+
+\begin_layout Standard
+Sundance is a high-level system, in which a finite-element problem is described
+ with expressions, function spaces, and domains instead of low-level concepts
+ such as matrix entries, elements, and nodes.
+ If you find yourself asking things such as "how can I modify the entries
+ in my local stiffness matrix" instead of "how can I modify my symbolic
+ equation set," you're probably thinking about the problem the wrong way.
+ Of course, you can write Sundance code using its low-level features directly,
+ but such code will be harder to read and almost always less efficient.
+ So please stick to the higher-level objects and operations.
+ Matlab programmers who have learned to write their problems as high-level
+ vector and matrix operations instead of low-level loops will find this
+ way of thinking natural.
+\end_layout
+
+\begin_layout Standard
+Solution of partial differential equations is a complicated endeavor with
+ many subtle difficulties, and there can be no one-size-fits-all simulation
+ code.
+ Sundance is not a simulation code as much as it is a set of high-level
+ objects that will let you, the user, build your own simulation code with
+ a minimum of effort.
+ These objects shield you from the rather tedious bookkeeping details required
+ in writing a finite-element code, but they do not shield you from the need
+ to understand how to do a proper formulation and discretization of a given
+ problem.
+\end_layout
+
+\begin_layout Section
+About the code and the documentation
+\end_layout
+
+\begin_layout Standard
+Sundance is written in the C++ programming language, with some calls to
+ third-party codes written in C and Fortran.
+ A user of Sundance will need to know the rudiments of C++ and should know
+ the fundamentals of object-oriented programming, but need not be an expert
+ C++ designer.
+ You will need to know how to use and occasionally write classes, but not
+ how to design them.
+\end_layout
+
+\begin_layout Standard
+Only a fraction of the objects and methods that make up Sundance are ever
+ needed in user code; most are used internally by Sundance.
+ This user's guide concentrates on those objects and methods needed by you
+ to write high-level code to solve a PDE using Sundance's native capabilities;
+ if your interest is in modifying or extending Sundance or simply figuring
+ out what goes on ``under the hood,'' I'll refer you to the sparse and expert-fr
+iendly Doxygen documentation.
+\end_layout
+
+\begin_layout Standard
+Sundance objects are declared in the Sundance namespace.
+\end_layout
+
+\begin_layout Subsection
+Typographical conventions
+\end_layout
+
+\begin_layout Standard
+We show code samples, variable names, function names, and class names in
+ 
+\family typewriter
+typewriter
+\family default
+ font.
+\end_layout
+
+\begin_layout Standard
+Class names begin with capital letters, and each word within the name also
+ begins capitalized.
+ For example: 
+\family typewriter
+MeshReader, DiscreteFunction
+\family default
+.
+ Function names and variables begin with lower-case letters, but subsequent
+ words within the name are capitalized.
+ For example: 
+\family typewriter
+getCells()
+\family default
+ or 
+\family typewriter
+numCells
+\family default
+.
+ Data member names end with an underscore, for example: 
+\family typewriter
+myName
+\begin_inset Formula $\_$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Fundamental data structures & utilities
+\end_layout
+
+\begin_layout Subsection
+Classes and objects
+\end_layout
+
+\begin_layout Standard
+Sundance is essentially a suite of 
+\emph on
+classes 
+\emph default
+and functions operating on them
+\emph on
+.
+ 
+\emph default
+A class is a data structure containing 
+\emph on
+member data
+\emph default
+ and 
+\emph on
+methods
+\emph default
+ or 
+\emph on
+member functions.
+ 
+\emph default
+Refer to your favorite C++ book for various simple examples.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Subclasses
+\end_layout
+
+\begin_layout Standard
+Polymorphism is a buzzword meaning the representation of different object
+ types (derived classes, or subclasses) having common behavior through a
+ common interface (the base class).
+ For example, there are a number of file formats in which we might want
+ to write results.
+ In a 1D problem, a simple text file with columns of values is sufficient
+ for plotting in a program such as Matlab.
+ In 2D and 3D, more complex data structures are needed; numerous file formats
+ for storing such data have been developed; two we'll use here are Exodus
+ (a binary format for 2D/3D data) and VTK (an XML-based text format for
+ 2D/3D data).
+ We might want to use any one of these, but don't want switching file format
+ to require major modifications to our simulation code.
+ The solution to this design problem is to encapsulate the common behavior
+ of file writers in an 
+\emph on
+abstract interface
+\emph default
+, or 
+\emph on
+abstract class.
+ 
+\emph default
+Specific file writers are then implemented as 
+\emph on
+subclasses
+\emph default
+ or 
+\emph on
+derived classes
+\emph default
+ of the abstract class.
+\end_layout
+
+\begin_layout Standard
+In the file writer example, the abstract class is called FieldWriterBase.
+ Several of its subclasses are VTKWriter, ExodusWriter, and MatlabWriter.
+ A quirk of writing clean C++ code is that we 
+\begin_inset Quotes eld
+\end_inset
+
+hide
+\begin_inset Quotes erd
+\end_inset
+
+ the FieldWriterBase object behind a 
+\begin_inset Quotes eld
+\end_inset
+
+handle
+\begin_inset Quotes erd
+\end_inset
+
+ class called FieldWriter.
+ We talk more about handles below; for now it is sufficient to say that
+ the handle class make the code more readable by humans.
+ Here's an example in which we create an ExodusWriter subclass, capture
+ it into a FieldWriter handle, and then execute several operations through
+ the FieldWriter interface.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+/* Create a field writer that will write to 
+\begin_inset Quotes eld
+\end_inset
+
+filename
+\begin_inset Quotes erd
+\end_inset
+
+ using the Exodus format */
+\end_layout
+
+\begin_layout Plain Layout
+
+FieldWriter writer = new ExodusWriter(filename);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Prepare to write by adding data to the writer */
+\end_layout
+
+\begin_layout Plain Layout
+
+writer.addMesh(mesh);
+\end_layout
+
+\begin_layout Plain Layout
+
+writer.addField(
+\begin_inset Quotes eld
+\end_inset
+
+temperature
+\begin_inset Quotes erd
+\end_inset
+
+, /* some arguments */);
+\end_layout
+
+\begin_layout Plain Layout
+
+writer.addField(
+\begin_inset Quotes eld
+\end_inset
+
+density
+\begin_inset Quotes erd
+\end_inset
+
+, /* some arguments */);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Do the write operation */
+\end_layout
+
+\begin_layout Plain Layout
+
+writer.write();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To convert this code to write to a VTK file, all that's needed is to change
+ the writer subclass used, replacing 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+FieldWriter writer = new ExodusWriter(filename);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+with
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+FieldWriter writer = new VTKWriter(filename);
+\end_layout
+
+\end_inset
+
+The remaining code is unchanged because the adding and writing operations
+ are done through the common FieldWriter interface.
+\end_layout
+
+\begin_layout Subsubsection
+Handle classes
+\end_layout
+
+\begin_layout Standard
+Understanding handle classes and how they are used in Sundance is important
+ for reading and writing Sundance code and browsing the source and class
+ documentation.
+ Handle classes are used in Sundance to simplify user-level polymorphism
+ and provide transparent memory management.
+\end_layout
+
+\begin_layout Standard
+Polymorphism is a buzzword meaning the representation of different but related
+ object types (derived classes, or subclasses) through a common interface
+ (the base class).
+ In C++, you can't use a base-class object to represent a derived class;
+ you have to use a pointer
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A 
+\emph on
+pointer
+\emph default
+ is a variable containing the memory address of some data, in other words,
+ it 
+\begin_inset Quotes eld
+\end_inset
+
+points to
+\begin_inset Quotes erd
+\end_inset
+
+ the data.
+ See your favorite C++ book for more information on pointers.
+ The Sundance toolkit is designed to minimize your need to work directly
+ with pointers.
+ 
+\end_layout
+
+\end_inset
+
+ to the base class object to represent a pointer to the derived class.
+ That leads to a rather awkward syntax and also requires attention to memory
+ management.
+ To simplify the interface and make memory management automatic, all user-level
+ polymorphism is done with handle classes.
+ A handle class is simply a class that contains a pointer to a base class,
+ along with an interface providing user-callable methods, and a (presumably)
+ intelligent scheme for memory management.
+\end_layout
+
+\begin_layout Standard
+So if you want to work with a family of Sundance objects, for instance the
+ different flavors of symbolic objects, you need only use: 
+\end_layout
+
+\begin_layout Itemize
+the methods of the handle class for that family of classes 
+\end_layout
+
+\begin_layout Itemize
+the constructors for the derived classes 
+\end_layout
+
+\begin_layout Standard
+You generally do not need to, and shouldn't, use any methods of the derived
+ classes; all work with the family should be done with methods of the handle
+ class.
+\end_layout
+
+\begin_layout Standard
+For example, Sundance symbolic objects are represented with a handle class
+ called 
+\family typewriter
+Expr
+\family default
+.
+ The different symbolic types derive from a class called 
+\family typewriter
+ExprBase
+\family default
+, but they are never used directly after construction; they are used only
+ through the 
+\family typewriter
+Expr
+\family default
+ handle class.
+ The code fragment below shows some 
+\family typewriter
+Expr
+\family default
+s being constructed through subclass constructors and then being used in
+ Expr operations.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr x = new CoordExpr(0, "x"); 
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr f = x + 3.0*sin(x); 
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr dx = new Derivative(0); 
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr df = dx*f;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notice that a pointer to a subclass object is created using the new operator,
+ and then given to the handle.
+ The handle object assumes responsibility for that pointer: it does all
+ memory management, any copying that might occur, and will eventually delete
+ it.
+ 
+\emph on
+You, the user, should never delete a pointer that has been passed to a handle
+\emph default
+.
+ Memory management is the responsibility of the handle.
+ Code such as this will seem familiar to Java programmers, who call 
+\family typewriter
+new
+\family default
+ but never 
+\family typewriter
+delete
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+Thanks to handles, when writing Sundance code you can always assume that
+ 
+\end_layout
+
+\begin_layout Itemize
+User-level classes have well-defined behavior for copying and assignment.
+ 
+\end_layout
+
+\begin_layout Itemize
+User-level classes have well-defined destructors, and take care of their
+ own memory management.
+ 
+\end_layout
+
+\begin_layout Section
+Parallel computing
+\end_layout
+
+\begin_layout Standard
+Sundance can both assemble and solve linear systems in parallel.
+ Parallel Sundance uses the SPMD paradigm, in which the same code is run
+ on all processors.
+ Communication is done using an object wrapper for MPI.
+ To use Sundance's parallel capabilities, Trilinos and Sundance must be
+ built with MPI enabled, and then your simulator must use a parallel-capable
+ linear algebra representation such as Epetra.
+ See the installation documentation for help in installing parallel Sundance.
+\end_layout
+
+\begin_layout Standard
+One of the design goals was to make parallel solves look to the user as
+ much as possible like serial solves.
+ In particular, the symbolic description of an equation set and boundary
+ conditions is completely unchanged from serial to parallel runs.
+ To run a problem in parallel, you simply need to use parallel linear algebra
+ and use a partitioned mesh.
+\end_layout
+
+\begin_layout Standard
+Operations such as norms and definite integrals on discrete functions are
+ done such that the result is collected from all processors.
+ 
+\end_layout
+
+\begin_layout Chapter
+Some preliminaries
+\end_layout
+
+\begin_layout Standard
+Herein are some dull but useful code management topics collected for reference.
+ You can skim over this chapter for now, then return to it as you encounter
+ output, error handling, and command-line processing in the examples.
+\end_layout
+
+\begin_layout Section
+Structure of a user's program
+\end_layout
+
+\begin_layout Standard
+Your main program will usually look like this: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include "Sundance.hpp"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	try
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::init(&argc, &argv);
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		/* body of code goes here */
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	catch(std::exception& ex)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::handleException(e);
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	Sundance::finalize();
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Some utilities
+\end_layout
+
+\begin_layout Subsection
+Output utilities
+\end_layout
+
+\begin_layout Standard
+While it's possible to use the C++ standard output streams 
+\family typewriter
+cout
+\family default
+ and 
+\family typewriter
+cerr
+\family default
+ directly, the output can get cluttered when computing on multiple processors
+ because it's difficult to tell which message comes from which processor.
+ The 
+\family typewriter
+Out
+\family default
+ class has several methods that can help keep your screen output clean and
+ readable.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+Out::os()
+\family default
+ is a wrapper around cout that prepends a processor identifier to each line
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+Out::root()
+\family default
+ is a wrapper around cout that is active only on the root (rank zero) processor.
+ Messages to 
+\family typewriter
+Out::root()
+\family default
+ on non-root processors are ignored.
+ 
+\end_layout
+
+\begin_layout Standard
+To see the difference, try running the code
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Out::root() << "Processor roll call:" << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << "rank=" << MPIComm::world().getRank() << " says hello" << endl;
+\end_layout
+
+\end_inset
+
+with several processors.
+ 
+\end_layout
+
+\begin_layout Subsection
+Error checks
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Error-checks"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Use the TEST_FOR_EXCEPTION() macro, which takes three arguments:
+\end_layout
+
+\begin_layout Enumerate
+An expression that evaluates to a boolean.
+ If the expression evaluates to true, the exception will be thrown.
+\end_layout
+
+\begin_layout Enumerate
+The type of exception class to be thrown.
+ The RuntimeError class is a good general-purpose exception.
+\end_layout
+
+\begin_layout Enumerate
+Code to write a descriptive error message.
+ This code can use any 
+\family typewriter
+ostream
+\family default
+ operations to format the error message can be formatted nicely.
+ 
+\end_layout
+
+\begin_layout Standard
+Here's an example of using TEST_FOR_EXCEPTION() to check validity of the
+ input to a function with a restricted domain.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+double myFunction(const double& x)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	TEST_FOR_EXCEPTION( x<0.0, RuntimeError, 
+\end_layout
+
+\begin_layout Plain Layout
+
+		"input to myFunction() must be positive: value was x=" << x);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	return sin(sqrt(x));
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In addition to neatly packaging several lines of error checking code, the
+ TEST_FOR_EXCEPTION() macro does two useful things for you:
+\end_layout
+
+\begin_layout Enumerate
+It appends the filename and line number where the error occurred.
+ 
+\end_layout
+
+\begin_layout Enumerate
+It calls a dummy function, TestForException_break(), intended as a place
+ to put a breakpoint in interactive debugging.
+ For example, when starting up gdb you can give the command 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+break TestForException_break
+\end_layout
+
+\end_inset
+
+Then, when an error occurs the debugger will stop the breakpoint, letting
+ you trace back to the point of failure.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Debugger-helpers"
+
+\end_inset
+
+ for more information on configuring debuggers to work with Sundance.
+\end_layout
+
+\begin_layout Subsection
+Working with command-line arguments
+\end_layout
+
+\begin_layout Standard
+Command-line arguments to main() are processed by the Teuchos 
+\family typewriter
+CommandLineProcessor
+\family default
+ utility class (hereafter, CLP).
+ The CLP class parses command-line arguments set with the Posix standard
+ double-dash format.
+ Parsing is done inside the 
+\family typewriter
+Sundance::init()
+\family default
+ function, so all command-line setup should be done before 
+\family typewriter
+init()
+\family default
+ is called.
+ Here is an example of setting several options of different data types.
+ Note that the syntax for 
+\family typewriter
+bool
+\family default
+ options differs slightly from that for 
+\family typewriter
+string
+\family default
+, 
+\family typewriter
+int
+\family default
+, and 
+\family typewriter
+double
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	try
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		/* Set default values for the options */
+\end_layout
+
+\begin_layout Plain Layout
+
+		int nSteps = 100;
+\end_layout
+
+\begin_layout Plain Layout
+
+		double reynolds = 500.0;
+\end_layout
+
+\begin_layout Plain Layout
+
+		string outFilename = "flow";
+\end_layout
+
+\begin_layout Plain Layout
+
+		bool useSUPG = false;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		/* Register the options with the command-line parser */
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::setOption("steps", nSteps, "Number of timesteps");
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::setOption("Re", reynolds, "Reynolds number");
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::setOption("o", outFilename, "Filename for output");
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::setOption("supg", "no-supg", useSUPG, 
+\end_layout
+
+\begin_layout Plain Layout
+
+			"Whether to use SUPG stabilization (recommended at high "
+\end_layout
+
+\begin_layout Plain Layout
+
+			"Reynolds numbers)"); 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		/* Call init as usual */
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::init(&argc, &argv);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		/* ----- remainder of code --- */
+\end_layout
+
+\end_inset
+
+If you run the executable with flags set as shown, 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./myCode.exe --o="flow-2000.0" --supg --Re=2000.0
+\end_layout
+
+\end_inset
+
+then 
+\emph on
+after
+\emph default
+ the call to 
+\family typewriter
+Sundance::init()
+\family default
+ the variable 
+\family typewriter
+outFilename
+\family default
+ will be set to 
+\family typewriter
+
+\begin_inset Quotes eld
+\end_inset
+
+flow-2000.0
+\begin_inset Quotes erd
+\end_inset
+
+
+\family default
+, the variable 
+\family typewriter
+reynolds
+\family default
+ will be set to 
+\begin_inset Formula $2000$
+\end_inset
+
+, and 
+\family typewriter
+useSUPG
+\family default
+ will be set to true.
+ The option 
+\family typewriter
+steps
+\family default
+ was never used, so the variable 
+\family typewriter
+nSteps
+\family default
+ will be left at its default value of 100.
+ 
+\emph on
+Before
+\emph default
+ the call to Sundance::init() the command line has not been parsed so the
+ variables still contain their default values.
+ 
+\end_layout
+
+\begin_layout Standard
+The example above used high-level wrapper functions, 
+\family typewriter
+Sundance::setOption()
+\family default
+, for the lower-level functions of CLP.
+ Should you prefer to work directly with the CLP object, it can be accessed
+ through the static function 
+\family typewriter
+Sundance::clp()
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Working with XML files
+\end_layout
+
+\begin_layout Standard
+An alternative to command line arguments is specification of options in
+ an XML file.
+ 
+\end_layout
+
+\begin_layout Chapter
+Operators, vectors, and solvers
+\end_layout
+
+\begin_layout Section
+Overview
+\end_layout
+
+\begin_layout Standard
+Most of the computation in PDE simulation involves operations with matrices
+ and vectors.
+ If you've programmed in Matlab, you'll have learned that it's a good idea
+ -- for both efficiency and human readability -- to work with matrices and
+ vectors as 
+\begin_inset Quotes eld
+\end_inset
+
+objects
+\begin_inset Quotes erd
+\end_inset
+
+ rather than doing operations by looping over indices.
+ There are no built-in matrix and vector types in C++, but one can write
+ classes to represent matrices and vectors.
+ 
+\end_layout
+
+\begin_layout Standard
+It's important to understand that we will be forming systems of linear equations
+ that are both very large and very sparse.
+ The data structures for the matrices and vectors involved are fairly complicate
+d, and the best choice of solution algorithm will depend strongly on the
+ specific problem.
+ There are a number of subpackages within Trilinos for doing sparse data
+ structures and sparse solves.
+ These in turn depend on lower-level libraries for dense linear algebra
+ (LAPACK and BLAS) and for parallel communication (MPI).
+ To provide a consistent and convenient user interface we 
+\begin_inset Quotes eld
+\end_inset
+
+wrap
+\begin_inset Quotes erd
+\end_inset
+
+ those capabilities in a suite of higher-level objects.
+ This three-layer structure is shown in figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:LA-Schematic"
+
+\end_inset
+
+.
+ Most of the time you'll work with the highest-level objects; occasionally
+ you might need to delve into the Trilinos mid-level objects if you want
+ some customized behavior.
+ Should you need to work with the mid-level objects, all of the Trilinos
+ libraries have Doxygen documentation available.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename LA-diagram.pdf
+	scale 50
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Schematic of relationship between high-level Sundance linear algebra interface,
+ mid-level Trilinos libraries for sparse linear algebra, and low-level BLAS,
+ LAPACK, and MPI.
+ The Sundance linear algebra objects make it possible to write efficient
+ code using high-level notation such as 
+\begin_inset Formula $x=y+A^{-1}b$
+\end_inset
+
+.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:LA-Schematic"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Principal user-level objects
+\end_layout
+
+\begin_layout Itemize
+The
+\family typewriter
+ VectorType 
+\family default
+class is responsible for creating 
+\family typewriter
+VectorSpace
+\family default
+ objects of a specified size and distribution over processors.
+ For example, the
+\family typewriter
+ EpetraVectorType
+\family default
+ subclass specifies that vectors will be stored as Epetra data structures.
+ Note that 
+\begin_inset Quotes eld
+\end_inset
+
+vector type
+\begin_inset Quotes erd
+\end_inset
+
+ is not a mathematical object in the sense that vector spaces and vectors
+ are; rather, it is a concept that lets us specify what 
+\emph on
+low-level software implementation
+\emph default
+ of vectors, spaces, and operators will be used.
+ 
+\end_layout
+
+\begin_layout Itemize
+The 
+\family typewriter
+VectorSpace
+\family default
+ class is responsible for creating vectors.
+ This is done using the 
+\family typewriter
+createMember()
+\family default
+ function.
+ 
+\family typewriter
+VectorSpace
+\family default
+ and 
+\family typewriter
+VectorType
+\family default
+ are both examples of the 
+\emph on
+abstract factory
+\emph default
+ design pattern; an abstract factory is a software design trick that provides
+ a common interface for creating objects, specific implementations of which
+ might be constructed in very different ways.
+ 
+\end_layout
+
+\begin_layout Itemize
+The 
+\family typewriter
+Vector
+\family default
+ class represents vectors.
+ Two compatible (
+\emph on
+i.e.
+\emph default
+, both from the same vector space) vectors can be added and subtracted with
+ the 
+\begin_inset Formula $+$
+\end_inset
+
+ and 
+\begin_inset Formula $-$
+\end_inset
+
+ operators.
+ The 
+\begin_inset Formula $*$
+\end_inset
+
+ operator between two vectors does the dot product.
+ Other operations such as various norms, Hadamard products, various operations
+ involving scalars, and element access are described in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Vector-operations"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+The 
+\family typewriter
+LinearOperator
+\family default
+ class represents linear operators.
+ However, many operators can be implemented 
+\begin_inset Quotes eld
+\end_inset
+
+matrix free,
+\begin_inset Quotes erd
+\end_inset
+
+ meaning it is not necessary to store any matrix elements.
+ For example, while the identity operator has a matrix representation, it
+ is inefficient to go through a matrix-vector multiplication when the assigment
+ 
+\begin_inset Formula $x\leftarrow Iy$
+\end_inset
+
+ can be effected by simply copying 
+\begin_inset Formula $y$
+\end_inset
+
+ into 
+\begin_inset Formula $x$
+\end_inset
+
+.
+ Thus, an identity operator isn't implemented as a matrix, it's simply an
+ instruction to copy the input directly into the output.
+ 
+\end_layout
+
+\begin_layout Itemize
+The 
+\family typewriter
+LinearSolver
+\family default
+ class represents algorithms for solving linear equations.
+ 
+\end_layout
+
+\begin_layout --Separator--
+
+\end_layout
+
+\begin_layout Standard
+All of these classes are templated on the scalar type, for instance, 
+\family typewriter
+Vector<double>
+\family default
+ or 
+\family typewriter
+Vector<float>.
+ 
+\family default
+The Sundance PDE discretization capabilities are presently hardwired to
+ double-precision real numbers, so we'll use 
+\family typewriter
+Vector<double>
+\family default
+ in all examples.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Handles, deep and shallow copies
+\end_layout
+
+\begin_layout Standard
+The five principal classes, VectorType, VectorSpace, Vector, LinearOperator,
+ and LinearSolver are all implemented as 
+\emph on
+reference-counted handles.
+ 
+\emph default
+An important consequence of that fact is that copies are 
+\begin_inset Quotes eld
+\end_inset
+
+shallow
+\begin_inset Quotes erd
+\end_inset
+
+.
+ That means that an assignment such as
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> x = someSpace.createMember();
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> y = x;
+\end_layout
+
+\end_inset
+
+does not create a new copy of the vector 
+\begin_inset Formula $x$
+\end_inset
+
+, complete with new data.
+ Rather, it creates a new 
+\begin_inset Quotes eld
+\end_inset
+
+handle
+\begin_inset Quotes erd
+\end_inset
+
+ to the same data.
+ One advantage of this is obvious: vectors can be large, so we want to avoid
+ making unnecessary copies.
+ But note that any modification to 
+\begin_inset Formula $y$
+\end_inset
+
+ will also trigger the same modification to 
+\begin_inset Formula $x$
+\end_inset
+
+, because 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+ are referring to 
+\emph on
+exactly the same data in memory.
+
+\emph default
+ The potential for confusion and unintended side effects is obvious.
+ Less obvious is that in certain important circumstances, such side effects
+ are exactly what is needed for a clean user interface to efficient low-level
+ code.
+\end_layout
+
+\begin_layout Standard
+Should you want to make a 
+\begin_inset Quotes eld
+\end_inset
+
+deep
+\begin_inset Quotes erd
+\end_inset
+
+ copy of a vector, in which the copy has its own data and is fully independent
+ of the original, use the copy() member function.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> x = someSpace.createMember();
+\end_layout
+
+\begin_layout Plain Layout
+
+x.setToConstant(1.0);
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> y = x;
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> z = x.copy();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+At this point 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+ are two 
+\begin_inset Quotes eld
+\end_inset
+
+handles
+\begin_inset Quotes erd
+\end_inset
+
+ to the same underlying vector, whereas 
+\begin_inset Formula $z$
+\end_inset
+
+ is a vector that has, for now, the same elements as 
+\begin_inset Formula $x$
+\end_inset
+
+.
+ Now modify 
+\begin_inset Formula $x$
+\end_inset
+
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+x.setToConstant(5.0);
+\end_layout
+
+\end_inset
+
+and print norms of the three vectors
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Out::root() << "||x|| = " << x.norm2() << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "||y|| = " << y.norm2() << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "||z|| = " << z.norm2() << endl;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The norms of 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+ are consistent with the updated value even though the variable 
+\begin_inset Formula $y$
+\end_inset
+
+ has never been 
+\emph on
+directly
+\emph default
+ modified.
+ The norm of 
+\begin_inset Formula $z$
+\end_inset
+
+ remains consistent with the original value of the vector 
+\begin_inset Formula $x$
+\end_inset
+
+, because modifications to 
+\begin_inset Formula $x$
+\end_inset
+
+ are not propagated to its deep copies.
+\end_layout
+
+\begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "exa:CG"
+
+\end_inset
+
+Example: A conjugate gradient solver
+\end_layout
+
+\begin_layout Standard
+Here we show how these objects are used to write a simple conjugate gradient
+ algorithm and apply it to finite-difference solution of the Poisson equation
+ in 1D.
+ The creation of the finite-difference matrix is assumed to be done by a
+ function 
+\family typewriter
+buildFDPoisson1D()
+\family default
+.
+ We don't show the details of the matrix creation function here; filling
+ matrices is low-level code that Sundance will usually hide from you.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+int numPerProc = 20;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+VectorType<double> vecType = new EpetraVectorType();
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearOperator<double> A = buildFDPoisson1D(vecType, numPerProc);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "Matrix A = " << endl; // print header on root processor
+ only    
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << A << endl;               // print matrix data on all processors
+\end_layout
+
+\end_inset
+
+Having created the matrix, we now make a vector of compatible size and fill
+ it with values.
+ We'll use this as the RHS of 
+\begin_inset Formula $Ax=b.$
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+VectorSpace<double> space = A.domain();     
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> b = space.createMember();
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+b.setToConstant(1.0);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "Vector b = " << endl; // print header on root processor
+ only    
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << b << endl;               // print matrix data on all processors
+\end_layout
+
+\end_inset
+
+Now we write the CG algorithm.
+ For simplicity, error checking is omitted.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> x = b.copy(); // NOT x=b, which would be a shallow copy
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> r = b - A*x;     
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> p = r.copy();
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+double tol = 1.0e-12;     
+\end_layout
+
+\begin_layout Plain Layout
+
+int maxIter = 100;
+\end_layout
+
+\begin_layout Plain Layout
+
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "Running CG" << endl;     
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "tolerance = " << tol << endl;     
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "max iters = " << maxIter << endl;     
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "---------------------------------------------------" <<
+ endl;          
+\end_layout
+
+\begin_layout Plain Layout
+
+for (int i=0; i<maxIter; i++)
+\end_layout
+
+\begin_layout Plain Layout
+
+{       
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<double> Ap = A*p; // save this, because we'll use it twice
+\end_layout
+
+\begin_layout Plain Layout
+
+	double rSqOld = r*r;       
+\end_layout
+
+\begin_layout Plain Layout
+
+	double pAp = p*Ap;       
+\end_layout
+
+\begin_layout Plain Layout
+
+	double alpha = rSqOld/pAp;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	x = x + alpha*p;       
+\end_layout
+
+\begin_layout Plain Layout
+
+	r = r - alpha*Ap;
+\end_layout
+
+\begin_layout Plain Layout
+
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+	double rSq = r*r;       
+\end_layout
+
+\begin_layout Plain Layout
+
+	double rNorm = sqrt(rSq);       
+\end_layout
+
+\begin_layout Plain Layout
+
+	Out::root() << "iter=" << setw(6) << i << setw(20) << rNorm << endl;  
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (rNorm < tol) break;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	double beta = rSq/rSqOld;
+\end_layout
+
+\begin_layout Plain Layout
+
+	p = r + beta*p;     
+\end_layout
+
+\begin_layout Plain Layout
+
+}     
+\end_layout
+
+\end_inset
+
+Upon exiting the CG loop, print the solution.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Out::root() << "Solution: " << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << x << endl;
+\end_layout
+
+\end_inset
+
+An industrial-strength CG solver would need preconditioning and error checking,
+ and could be packaged up as a 
+\family typewriter
+LinearSolver
+\family default
+ object.
+\end_layout
+
+\begin_layout Subsubsection
+Example: Inverse power iteration
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Example:-Inverse-power"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next we show code for calculation of the lowest eigenvalue of a matrix 
+\begin_inset Formula $A$
+\end_inset
+
+ by applying the power method to 
+\begin_inset Formula $A^{-1}$
+\end_inset
+
+.
+ The most important feature to look for in this example is the use of an
+ implicit inverse operator.
+ It's rarely a good idea to compute the matrix 
+\begin_inset Formula $A^{-1}$
+\end_inset
+
+, so we want to avoid that.
+ Instead, we create an 
+\emph on
+implicit inverse operator
+\emph default
+ that evaluates 
+\begin_inset Formula $A^{-1}y$
+\end_inset
+
+ by using a LinearSolver object to solve the system 
+\begin_inset Formula $Ax=y$
+\end_inset
+
+.
+ Linear solvers are complicated enough that we'll usually build them by
+ reading parameters from a file.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include "Sundance.hpp" 
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "FDMatrixPoisson1D.hpp"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int main(int argc, char** argv) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{   
+\end_layout
+
+\begin_layout Plain Layout
+
+	try   
+\end_layout
+
+\begin_layout Plain Layout
+
+	{     
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::init(&argc, &argv);
+\end_layout
+
+\begin_layout Plain Layout
+
+    	
+\end_layout
+
+\begin_layout Plain Layout
+
+		int numPerProc = 1000;
+\end_layout
+
+\begin_layout Plain Layout
+
+		VectorType<double> vecType = new EpetraVectorType();
+\end_layout
+
+\begin_layout Plain Layout
+
+		LinearOperator<double> A = buildFDPoisson1D(vecType, numPerProc);
+\end_layout
+
+\begin_layout Plain Layout
+
+		VectorSpace<double> space = A.domain();     
+\end_layout
+
+\begin_layout Plain Layout
+
+		
+\end_layout
+
+\begin_layout Plain Layout
+
+		Vector<double> x = space.createMember();
+\end_layout
+
+\begin_layout Plain Layout
+
+		x.setToConstant(1.0);
+\end_layout
+
+\begin_layout Plain Layout
+
+		
+\end_layout
+
+\begin_layout Plain Layout
+
+		LinearSolver<double> solver      = 
+\end_layout
+
+\begin_layout Plain Layout
+
+			LinearSolverBuilder::createSolver("amesos.xml");
+\end_layout
+
+\begin_layout Plain Layout
+
+		LinearOperator<double> AInv = inverse(A, solver);
+\end_layout
+
+\begin_layout Plain Layout
+
+    	
+\end_layout
+
+\begin_layout Plain Layout
+
+		int maxIters = 100;     
+\end_layout
+
+\begin_layout Plain Layout
+
+		double tol = 1.0e-12;
+\end_layout
+
+\begin_layout Plain Layout
+
+    	double mu;     
+\end_layout
+
+\begin_layout Plain Layout
+
+		double muPrev = 0.0;
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+		for (int i=0; i<maxIters; i++)     
+\end_layout
+
+\begin_layout Plain Layout
+
+		{      
+\end_layout
+
+\begin_layout Plain Layout
+
+			Vector<double> AInvX = AInv*x;       
+\end_layout
+
+\begin_layout Plain Layout
+
+			mu = (x*AInvX)/(x*x);       
+\end_layout
+
+\begin_layout Plain Layout
+
+			Out::os() << "Iter " << setw(5) << i 
+\end_layout
+
+\begin_layout Plain Layout
+
+				<< setw(25) << setprecision(10) << mu << endl;       
+\end_layout
+
+\begin_layout Plain Layout
+
+			if (fabs(mu-muPrev) < tol) break;       
+\end_layout
+
+\begin_layout Plain Layout
+
+			muPrev = mu;       
+\end_layout
+
+\begin_layout Plain Layout
+
+			double AInvXNorm = AInvX.norm2();       
+\end_layout
+
+\begin_layout Plain Layout
+
+			x = 1.0/AInvXNorm * AInvX;     
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		Out::root() << "Lowest eigenvalue " 
+\end_layout
+
+\begin_layout Plain Layout
+
+			<< setw(25) << setprecision(10) << 1.0/mu << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+	catch(exception& e)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+		Sundance::handleException(e);  
+\end_layout
+
+\begin_layout Plain Layout
+
+	}   
+\end_layout
+
+\begin_layout Plain Layout
+
+	Sundance::finalize();  
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Both examples have concentrated on the 
+\emph on
+use
+\emph default
+ of matrix and vector objects rather than the 
+\emph on
+creation
+\emph default
+ of these objects.
+ Sundance will automatically build matrices for rather complicated problems,
+ and you'll rarely need to create matrices yourself.
+ However, in writing advanced preconditioning, optimization, and solver
+ algorithms you'll need to compose implicit operations.
+ 
+\end_layout
+
+\begin_layout Section
+Vectors
+\end_layout
+
+\begin_layout Standard
+We now move on from the high-level overview to a discussion of the types
+ and capabilities of vectors.
+\end_layout
+
+\begin_layout Subsection
+Creation of vectors
+\end_layout
+
+\begin_layout Standard
+You will rarely call a vector constructor directly; the reason for this
+ is that different vector libraries have different data requirements making
+ it difficult to .
+ Instead, vectors are built indirectly by calling the 
+\family typewriter
+createMember()
+\family default
+ member function of 
+\family typewriter
+VectorSpace
+\family default
+.
+ Each 
+\family typewriter
+VectorSpace
+\family default
+ object contains the data needed to build vector objects, and the implementation
+ of the 
+\family typewriter
+createMember()
+\family default
+ function will use that data to invoke a constructor call.
+ 
+\end_layout
+
+\begin_layout Subsection
+Vector operations
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Vector-operations"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Overloaded binary operations
+\end_layout
+
+\begin_layout Standard
+The standard binary operations 
+\begin_inset Formula $\mathbf{a\pm b}$
+\end_inset
+
+, 
+\begin_inset Formula $\alpha\mathbf{a}$
+\end_inset
+
+, and 
+\begin_inset Formula $\mathbf{a\cdot b}$
+\end_inset
+
+ are implemented via operator overloading.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="5">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="bottom" width="0">
+<column alignment="center" valignment="bottom" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Left operand
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Operator
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Right operand
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Return type
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Restrictions
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
++
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+Vector
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Operands must be members of the same vector space
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+-
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+Vector
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Operands must be members of the same vector space
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+alpha
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+Vector
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+Scalar
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Operands must be members of the same vector space
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+These operations can be combined in any way that makes mathematical sense,
+ for example:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> v = 2.0*a - 4.0*b + (a*b)*c;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that the operation 
+\family typewriter
+(a*b)*c
+\family default
+ obeys the rules of precedence, so that the vector 
+\begin_inset Formula $\mathbf{c}$
+\end_inset
+
+ is multiplied by the scalar 
+\begin_inset Formula $\mathbf{a\cdot b}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Unary vector-valued operations
+\end_layout
+
+\begin_layout Standard
+The following functions operate elementwise on a vector, returning a new
+ vector as a result.
+ The original vector is unchanged.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Operation
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Notes
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+reciprocal()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+If any element is zero, a runtime exception will be thrown
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+abs()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+copy()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Makes a 
+\begin_inset Quotes eld
+\end_inset
+
+deep
+\begin_inset Quotes erd
+\end_inset
+
+ copy of a vector
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> w = v.reciprocal();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Norms and other reduction operations
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Operation
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Notes
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+norm1()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Computes 
+\begin_inset Formula $\left\Vert x\right\Vert _{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+norm2()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Computes 
+\begin_inset Formula $\left\Vert x\right\Vert _{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+normInf()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Computes 
+\begin_inset Formula $\left\Vert x\right\Vert _{\infty}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+max()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Largest element of 
+\begin_inset Formula $x$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+min()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Smallest element of 
+\begin_inset Formula $x$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Formula $x=\left(\begin{array}{ccccc}
+-1 & 0 & 0 & 1 & 2\end{array}\right)$
+\end_inset
+
+ then 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Out::os() << x.norm1() << endl;   // prints 4
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << x.norm2() << endl;   // prints sqrt(6)
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << x.normInf() << endl; // prints 2
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << x.max()     << endl; // prints 2
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << x.min()     << endl; // prints -1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Also, there are methods to return the location of the minimum and maximum
+ (used in algorithms for constrained optimization, to find the nearest constrain
+t).
+ Write these up later.
+ 
+\end_layout
+
+\begin_layout Subsection
+Block vectors
+\end_layout
+
+\begin_layout Standard
+To be written
+\end_layout
+
+\begin_layout Subsection
+Access to vector elements
+\end_layout
+
+\begin_layout Standard
+Before working directly with vector elements, stop to ask whether it's really
+ necessary.
+ Most numerical algorithms don't require access to vector elements.
+ For instance, a conjugate gradient solver uses only vector addition, multiplica
+tion of a vector by a scalar, and the inner product between vectors.
+ All of these can be carried out using member functions of 
+\family typewriter
+Vector
+\family default
+ with no need for element access.
+ There are two cases in which you may need element access:
+\end_layout
+
+\begin_layout Itemize
+If you need to write a new vector operation not already supported.
+ In such cases, for efficiency and generality it is best in the long run
+ to implement the operation using the reduction/transformation operator
+ (RTOp) interface.
+ However, writing the operation via vector elements is a workable expedient
+ to get your code up and running quickly.
+\end_layout
+
+\begin_layout Itemize
+If you need to load elements into a vector, for instance when reading from
+ a file.
+ 
+\end_layout
+
+\begin_layout Standard
+If vector element access really is what you need, then here's how to do
+ it.
+ An element of a vector is identified uniquely by its 
+\emph on
+global index
+\emph default
+.
+ To get or set the value of that element, use the 
+\family typewriter
+getElement()
+\family default
+ and 
+\family typewriter
+setElement()
+\family default
+ functions as follows.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+/* set vec[10] = 3.14; */
+\end_layout
+
+\begin_layout Plain Layout
+
+vec.setElement(10, 3.14);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* view the new element */
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::os() << vec.getElement(10);
+\end_layout
+
+\end_inset
+
+In a parallel program with a distributed vector space, each processor will
+ contain only a subset of the global indices.
+ To find the range of global indices on each processor, you can use methods
+ of 
+\family typewriter
+VectorSpace.
+\family default
+For example, the following code when run in SPMD mode will fill a distributed
+ vector with values 
+\begin_inset Formula $x_{n}=\sqrt{n}$
+\end_inset
+
+.
+ Each processor sets only the elements 
+\begin_inset Quotes eld
+\end_inset
+
+living
+\begin_inset Quotes erd
+\end_inset
+
+ on that processor.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+int low = vec.space().lowestLocallyOwnedIndex();
+\end_layout
+
+\begin_layout Plain Layout
+
+int high = low + vec.space().numLocalElements();
+\end_layout
+
+\begin_layout Plain Layout
+
+for (int g=low; g<high; g++) vec.setElement(g, sqrt(g));
+\end_layout
+
+\end_inset
+
+Alternatively, you can use a 
+\family typewriter
+SequentialIterator
+\family default
+ object to walk in order over vector elements.
+ For example, this code fills 
+\begin_inset Formula $x_{n}=\sqrt{n}$
+\end_inset
+
+ using iterators.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SequentialIterator<double> iter;
+\end_layout
+
+\begin_layout Plain Layout
+
+for (iter=vec.space().begin(); iter != vec.space().end(); iter++)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	int g = iter.globalIndex();
+\end_layout
+
+\begin_layout Plain Layout
+
+	vec[iter] = sqrt(g);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Writing your own vector operations
+\end_layout
+
+\begin_layout Standard
+Need a clean interface to Bartlett's RTOp system.
+\end_layout
+
+\begin_layout Section
+Linear operators
+\end_layout
+
+\begin_layout Standard
+Linear operators are represented by the 
+\family typewriter
+LinearOperator
+\family default
+ class.
+ 
+\end_layout
+
+\begin_layout Subsection
+Matrices
+\end_layout
+
+\begin_layout Standard
+Construction of matrices is a several-step process.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Create a 
+\family typewriter
+MatrixFactory
+\family default
+ object
+\end_layout
+
+\begin_layout Enumerate
+Call member functions of the 
+\family typewriter
+MatrixFactory
+\family default
+ to configure the sparsity structure of the matrix 
+\end_layout
+
+\begin_layout Enumerate
+Call the createMatrix() member function of the 
+\family typewriter
+MatrixFactory
+\family default
+ to allocate the matrix
+\end_layout
+
+\begin_layout Enumerate
+Call member functions of the 
+\family typewriter
+LoadableMatrix
+\family default
+ interface to set values of the nonzero elements.
+\end_layout
+
+\begin_layout Standard
+If this seems complicated, it's because working with sparse matrices 
+\emph on
+is
+\emph default
+ complicated, and different sparse matrix implementations (there are several
+ just in Epetra) need to be constructed in different ways.
+ The MatrixFactory interface lets us hide the complexity of sparse matrix
+ construction behind a common interface.
+ 
+\end_layout
+
+\begin_layout Subsection
+Implicit operators
+\end_layout
+
+\begin_layout Standard
+We will frequently need to build operators out of simpler operators, without
+ explicitly forming matrices.
+ Several common types of implicit operators are described here.
+ 
+\end_layout
+
+\begin_layout Standard
+In the following examples it is assumed that operators 
+\begin_inset Formula $A$
+\end_inset
+
+ and 
+\begin_inset Formula $B$
+\end_inset
+
+ have been created by some function.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> A = makeSomeMatrix();
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearOperator<double> B = makeSomeOtherMatrix();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Operator arithmetic
+\end_layout
+
+\begin_layout Standard
+The action of a composed operator 
+\begin_inset Formula $ABx$
+\end_inset
+
+ is computed implicitly by first computing 
+\begin_inset Formula $y=Bx$
+\end_inset
+
+, then computing 
+\begin_inset Formula $Ay.$
+\end_inset
+
+ There is no need to form the matrix 
+\begin_inset Formula $AB$
+\end_inset
+
+.
+ Similarly, 
+\begin_inset Formula $\left(A\pm B\right)x$
+\end_inset
+
+ can be evaluated implicitly by computing 
+\begin_inset Formula $y=Ax$
+\end_inset
+
+, 
+\begin_inset Formula $z=Bx$
+\end_inset
+
+, then doing 
+\begin_inset Formula $y\pm z$
+\end_inset
+
+.
+ Action of a scaled operator 
+\begin_inset Formula $\alpha Ax$
+\end_inset
+
+ is done implicitly as 
+\begin_inset Formula $\alpha\left(Ax\right)$
+\end_inset
+
+.
+ Any combination of these can be specified using overloaded operators, for
+ example:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> C = A + B;
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearOperator<double> D = 2.0*A - 0.5*B + 1.2*C;
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearOperator<double> E = A*B;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Transposition
+\end_layout
+
+\begin_layout Standard
+Most good sparse matrix packages have the ability to compute 
+\begin_inset Formula $A^{T}x$
+\end_inset
+
+ without explicitly forming 
+\begin_inset Formula $A^{T}.$
+\end_inset
+
+ Given that, together with implicit composition, we can do 
+\begin_inset Formula $(AB)^{T}x=B^{T}A^{T}x$
+\end_inset
+
+ implicitly as well, and with implicit addition we can do 
+\begin_inset Formula $\left(A\pm B\right)^{T}x=A^{T}x\pm B^{T}x$
+\end_inset
+
+.
+ The 
+\family typewriter
+transposedOperator()
+\family default
+ function creates an operator object that knows to apply these rules.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> At = transposedOperator(A);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Diagonal operators
+\end_layout
+
+\begin_layout Standard
+A diagonal operator can be represented with nothing but a vector of diagonal
+ elements.
+ To make a diagonal operator, call the 
+\family typewriter
+diagonalOperator()
+\family default
+ function with the vector to be put on the diagonal.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> d = makeSomeVector();
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearOperator<double> D = diagonalOperator(d);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Zero operators
+\end_layout
+
+\begin_layout Standard
+Application of the zero operator returns the zero vector of the range space
+ of the operator.
+ To make a zero operator, call the
+\family typewriter
+ zeroOperator()
+\family default
+ function with arguments that specify the domain and range spaces of the
+ operator.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> zero = zeroOperator(domain, range);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Identity operators
+\end_layout
+
+\begin_layout Standard
+The identity operator simply returns a copy of the operand.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> I = identityOperator(space);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Implicit inverses
+\end_layout
+
+\begin_layout Standard
+The operation 
+\begin_inset Formula $y=A^{-1}x$
+\end_inset
+
+ is computed implicity by solving the system 
+\begin_inset Formula $Ay=x.$
+\end_inset
+
+ It is necessary to specify the solver algorithm that will be used to solve
+ the system.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> AInv = inverse(A, solver);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Writing your own operator type
+\end_layout
+
+\begin_layout Standard
+Write your class to conform to the 
+\family typewriter
+SimplifiedLinearOpBase
+\family default
+ abstract interface, which basically means writing a member function that
+ applies the operator to a vector.
+ 
+\emph on
+To be written.
+\end_layout
+
+\begin_layout Subsection
+Block operators
+\end_layout
+
+\begin_layout Standard
+To be written
+\end_layout
+
+\begin_layout Subsection
+Access to matrix data
+\end_layout
+
+\begin_layout Standard
+You usually don't want to do this! Two exceptions are: row access for creating
+ certain preconditioners, and access to the diagonal for diagonal preconditionin
+g and other tricks.
+\end_layout
+
+\begin_layout Subsubsection
+Access to the nonzeros in a row
+\end_layout
+
+\begin_layout Subsubsection
+Access to values on the diagonal
+\end_layout
+
+\begin_layout Standard
+You can extract the diagonal from an operator 
+\begin_inset Formula $A$
+\end_inset
+
+ that is stored in Epetra form
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> d = getEpetraDiagonal(A);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Getting a lumped diagonal
+\end_layout
+
+\begin_layout Standard
+A lumped diagonal for 
+\begin_inset Formula $A$
+\end_inset
+
+ is a diagonal matrix 
+\begin_inset Formula $D$
+\end_inset
+
+ where 
+\begin_inset Formula $D_{ii}=\sum_{j=1}^{N}A_{ij}$
+\end_inset
+
+.
+ This can be done with high-level operations, as follows:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Vector<double> ones = A.domain().createMember();
+\end_layout
+
+\begin_layout Plain Layout
+
+ones.setToConstant(1.0);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Vector<double> rowSums = A*ones;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearOperator<double> lump = diagonalOperator(rowSums);
+\end_layout
+
+\end_inset
+
+Because this involves multiplications as well as addition of matrix elements,
+ it is very slightly less efficient than a specialized row sum function.
+ However, not all sparse matrix implementations will have a row sum function,
+ but all will have a matrix-vector multiply, so the multiplication method
+ is a simple solution.
+ 
+\end_layout
+
+\begin_layout Standard
+This method of finding lumped diagonals is a special case of a more general
+ idea called probing, in which properties of a matrix are determined, or
+ at least estimated, through multiplications with a strategically-chosen
+ sequence of vectors.
+\end_layout
+
+\begin_layout Subsection
+Matrix-matrix operations
+\end_layout
+
+\begin_layout Subsubsection
+Matrix-matrix products
+\end_layout
+
+\begin_layout Standard
+Multiplication of matrices is expensive, and explicit calculation of 
+\begin_inset Formula $AB$
+\end_inset
+
+ should almost always be avoided if an implicit calculation of 
+\begin_inset Formula $ABx$
+\end_inset
+
+ will suffice.
+ However, in some cases there is no alternative but to form 
+\begin_inset Formula $AB$
+\end_inset
+
+ explicitly.
+ The function 
+\family typewriter
+epetraMatrixMatrixProduct
+\family default
+ will multiply two Epetra CRS matrices, returning the result (also stored
+ as an Epetra CRS matrix) as a LinearOperator.
+ This example does the operation 
+\begin_inset Formula $C=AB.$
+\end_inset
+
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> C = epetraMatrixMatrixProduct(A, B);
+\end_layout
+
+\end_inset
+
+An important special case where some performance optimizations are possible
+ is that of multiplication of a matrix 
+\begin_inset Formula $A$
+\end_inset
+
+ with a diagonal matrix 
+\begin_inset Formula $D$
+\end_inset
+
+.
+ The product 
+\begin_inset Formula $DA$
+\end_inset
+
+ is equivalent to scaling the rows of 
+\begin_inset Formula $A$
+\end_inset
+
+ by the corresponding diagonal entry of 
+\begin_inset Formula $D$
+\end_inset
+
+, whereas the product 
+\begin_inset Formula $AD$
+\end_inset
+
+ scales the columns.
+ The diagonal matrix 
+\begin_inset Formula $D$
+\end_inset
+
+ can be represented by a vector 
+\begin_inset Formula $d$
+\end_inset
+
+ containing its diagonal elements.
+ The computation of 
+\begin_inset Formula $DA$
+\end_inset
+
+ is done as shown: 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> DA = epetraLeftScale(d, A);
+\end_layout
+
+\end_inset
+
+The matrix 
+\begin_inset Formula $A$
+\end_inset
+
+ is unchanged.
+ Calculation of 
+\begin_inset Formula $AD$
+\end_inset
+
+ is, similarly,
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> AD = epetraRightScale(A,d );
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Matrix-matrix sums
+\end_layout
+
+\begin_layout Standard
+Explicit matrix-matrix addition is done with the function epetraMatrixMatrixSum
+ as follows:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> APlusB = epetraMatrixMatrixSum(A, B);
+\end_layout
+
+\end_inset
+
+The two operands must have compatible shapes, but need not have the same
+ sparsity graph.
+\end_layout
+
+\begin_layout Subsubsection
+Explicit diagonal matrix formation
+\end_layout
+
+\begin_layout Standard
+If for some reason you need to work with an explicit Epetra matrix representatio
+n of a diagonal operator, you can create one from a 
+\family typewriter
+Vector
+\family default
+ 
+\begin_inset Formula $d$
+\end_inset
+
+ as shown
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+LinearOperator<double> D = makeEpetraDiagonalMatrix(d);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Linear solvers
+\end_layout
+
+\begin_layout Standard
+A linear solver is an object that takes a matrix 
+\begin_inset Formula $A$
+\end_inset
+
+, a vector 
+\begin_inset Formula $b$
+\end_inset
+
+, and solves the equation 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+.
+ There are many methods for solving systems, and even given the same method
+ we might have several different choices of implementations of that method.
+ The Trilinos library, for instance, has three major linear solver packages
+\end_layout
+
+\begin_layout Itemize
+Amesos is a collection of direct (sparse 
+\begin_inset Formula $LU$
+\end_inset
+
+ and sparse Cholesky) solvers suitable for PDE problems up to a few hundred
+ thousand unknowns.
+ 
+\end_layout
+
+\begin_layout Itemize
+Belos is a collection of Krylov methods 
+\end_layout
+
+\begin_layout Itemize
+Aztec is a legacy collection of Krylov methods, being superseded by Belos.
+ Aztec is (at present) somewhat faster than Belos, but is more difficult
+ to customize to problems involving block structure, unusual preconditioners,
+ or unusual stopping conditions.
+ 
+\end_layout
+
+\begin_layout Standard
+We might want to use any one of these and it needs to be convenient to switch
+ from one solver to another.
+ The most common method of creating a solver is to read parameters from
+ an XML file and invoke the 
+\family typewriter
+createSolver()
+\family default
+ static method of the 
+\family typewriter
+LinearSolverBuilder
+\family default
+ class.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+Unfortunately, at present the solver parameters are not well documented.
+ In some solver packages they're not documented at all outside the source
+ code.
+ We need to work with the Trilinos solver developers to improve this situation.
+\end_layout
+
+\begin_layout Subsection
+Preconditioners
+\end_layout
+
+\begin_layout Section
+Nonlinear solvers
+\end_layout
+
+\begin_layout Standard
+To be written
+\end_layout
+
+\begin_layout Section
+Eigensolvers
+\end_layout
+
+\begin_layout Standard
+To be written
+\end_layout
+
+\begin_layout Section
+Review of design concepts
+\end_layout
+
+\begin_layout Standard
+Some important points to take away from this description of linear algebra
+ objects are:
+\end_layout
+
+\begin_layout Enumerate
+We try to hide complicated, implementation-dependent operations (such as
+ configuration and filling of a sparse matrix) behind abstract factory interface
+s.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+This lets us change implementations simply by changing which factory we
+ use.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+We do as few 
+\emph on
+explicit
+\emph default
+ matrix operations as possible.
+ For example, in computing 
+\begin_inset Formula $ABx$
+\end_inset
+
+ or 
+\begin_inset Formula $A^{-1}x$
+\end_inset
+
+ with overloaded operators we never actually form the matrices 
+\begin_inset Formula $AB$
+\end_inset
+
+ or 
+\begin_inset Formula $A^{-1}$
+\end_inset
+
+.
+ Explicit matrix-matrix products are available for those rare cases when
+ they are needed.
+ 
+\end_layout
+
+\begin_layout Enumerate
+We avoid low-level operations on vector 
+\emph on
+elements
+\emph default
+ whenever possible, preferring high-level functions that operate on the
+ vector as an object.
+ 
+\end_layout
+
+\begin_layout Standard
+Keep these considerations in mind as we move on to discuss objects for meshes,
+ geometric regions, symbolic expressions, quadrature, and other components
+ of a PDE simulation.
+ 
+\end_layout
+
+\begin_layout Chapter
+Some examples
+\end_layout
+
+\begin_layout Section
+Poisson's equation
+\end_layout
+
+\begin_layout Section
+Poisson's equation with a nonlinear source
+\end_layout
+
+\begin_layout Standard
+In this example we'll solve the nonlinear equation 
+\begin_inset Formula \begin{equation}
+\nabla^{2}u=\alpha u^{2}+x\;\;\;\mbox{in }\Omega\label{eq:quadraticPoisson}\end{equation}
+
+\end_inset
+
+
+\begin_inset Formula \[
+u=0\;\;\;\mbox{on }\Gamma.\]
+
+\end_inset
+
+We can't solve a nonlinear equation directly.
+\end_layout
+
+\begin_layout Subsection
+Solution by fixed-point iteration
+\end_layout
+
+\begin_layout Standard
+The simplest approach is fixed-point iteration on the problem
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\nabla^{2}u_{n}=\alpha u_{n-1}^{2}+x\;\;\;\mbox{in }\Omega\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+u_{n}=0\;\;\;\mbox{on }\Gamma\]
+
+\end_inset
+
+in which we have replaced the nonlinear term 
+\begin_inset Formula $u^{2}$
+\end_inset
+
+ by its value at a previous iterate, 
+\begin_inset Formula $u_{n-1}^{2}$
+\end_inset
+
+.
+ We solve this problem until
+\begin_inset Formula \[
+\left\Vert u_{n}-u_{n-1}\right\Vert \le\epsilon\]
+
+\end_inset
+
+for some specified tolerance 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ and norm 
+\begin_inset Formula $\left\Vert \cdot\right\Vert $
+\end_inset
+
+.
+ The new features of this problem are
+\end_layout
+
+\begin_layout Enumerate
+We need a way to represent the previous solution 
+\begin_inset Formula $u_{n-1}$
+\end_inset
+
+ as a symbolic object.
+ There is an object type, 
+\family typewriter
+DiscreteFunction
+\family default
+
+\begin_inset Index
+status open
+
+\begin_layout Plain Layout
+DiscreteFunction
+\end_layout
+
+\end_inset
+
+, designed for exactly this purpose.
+ 
+\end_layout
+
+\begin_layout Enumerate
+We won't store all the previous solutions: we only need one, which we'll
+ call 
+\family typewriter
+uPrev
+\family default
+.
+ After each step, we'll write the solution into 
+\family typewriter
+uPrev
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+In order to check convergence, we need to compute a norm of a symbolic expressio
+n.
+ 
+\end_layout
+
+\begin_layout Standard
+Let's first look at the code to create a discrete function.
+ A discrete function is based on a 
+\family typewriter
+DiscreteSpace
+\begin_inset Index
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+DiscreteSpace
+\end_layout
+
+\end_inset
+
+
+\family default
+ object.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+DiscreteSpace discSpace(mesh, basis, vecType);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr uPrev = new DiscreteFunction(discSpace, 0.0);
+\end_layout
+
+\end_inset
+
+The discrete function has been initialized to the constant value zero.
+ We will see later how to create a non-constant discrete function.
+\end_layout
+
+\begin_layout Standard
+With the discrete function ready, we can write the weak form and the linear
+ problem.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr eqn = Integral(interior, 
+\end_layout
+
+\begin_layout Plain Layout
+
+	(grad*v)*(grad*v)+v*(alpha*pow(uPrev,2.0)+x), quad);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr bc = EssentialBC(bdry, v*u, quad);
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearProblem prob(mesh, eqn, bc, v, u, vecType);
+\end_layout
+
+\end_inset
+
+We now write the fixed-point iteration loop, which involves the norm check
+ and the updating of the solution vector.
+ There are a number of norms we can use in the convergence check, and in
+ the next examples we'll show several norm computation methods.
+ In the present example, we'll use the 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+ norm.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+int maxIters = 20;
+\end_layout
+
+\begin_layout Plain Layout
+
+double tol = 1.0e-12;
+\end_layout
+
+\begin_layout Plain Layout
+
+bool converged = false;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr soln;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+for (int i=0; i<maxIters; i++)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	soln = prob.solve(solver);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	/* Set up an expression for computation of the norm */
+\end_layout
+
+\begin_layout Plain Layout
+
+	Expr normIntExpr = Integral(interior, pow(soln-uPrev,2.0), quad);
+\end_layout
+
+\begin_layout Plain Layout
+
+	/* Compute the norm */
+\end_layout
+
+\begin_layout Plain Layout
+
+	double stepNorm = sqrt(evaluateIntegral(mesh, normExpr));
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	/* Check for convergence */
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (stepNorm < tol) 
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		converged = true;
+\end_layout
+
+\begin_layout Plain Layout
+
+		break;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}	
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	/* Write the current solution into the previous solution */
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<double> solnVec = DiscreteFunction::discFunc(soln)->getVector();
+\end_layout
+
+\begin_layout Plain Layout
+
+	DiscreteFunction::discFunc(uPrev)->getVector();
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+TEST_FOR_EXCEPTION(!converged, RuntimeError,
+\end_layout
+
+\begin_layout Plain Layout
+
+	"Fixed-point iterations did not converge after " << maxIters 
+\end_layout
+
+\begin_layout Plain Layout
+
+	<< " iterations.");
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+If the algorithm has converged, the expression 
+\family typewriter
+soln
+\family default
+ now contains the approximate solution.
+ 
+\end_layout
+
+\begin_layout Subsection
+Solution by Newton's method
+\end_layout
+
+\begin_layout Standard
+In Newton's method for solving a nonlinear equation 
+\begin_inset Formula $F(u)=0$
+\end_inset
+
+, we linearize the problem about an estimated solution 
+\begin_inset Formula $u_{n-1}$
+\end_inset
+
+,
+\begin_inset Formula \[
+F(u_{n-1})+\left.\pd{F}{u}\right|_{u_{n-1}}\left(u_{n}-u_{n-1}\right)=0.\]
+
+\end_inset
+
+This linear equation is solved for 
+\begin_inset Formula $w=\left(u_{n}-u_{n-1}\right)$
+\end_inset
+
+, and then 
+\begin_inset Formula $u_{n}=u_{n-1}+w$
+\end_inset
+
+ is the next estimate for the solution.
+ Provided the initial guess is sufficiently close to the solution, the algorithm
+ will converge quadratically.
+ Without a good initial guess, the method can fail to converge.
+ High-quality nonlinear solvers will have a method for improving global
+ convergence.
+ One class of globalization methods, the 
+\emph on
+line search
+\emph default
+ methods, limit the size of the step, 
+\emph on
+i.e.
+\emph default
+, they update the solution estimate by
+\begin_inset Formula \[
+u_{n}=u_{n-1}+\alpha w\]
+
+\end_inset
+
+for some 
+\begin_inset Formula $\alpha\in(0,1]$
+\end_inset
+
+ chosen to ensure improvement in the solution.
+ Refer to a text on nonlinear solvers (
+\emph on
+e.g.
+
+\emph default
+ Dennis and Schnabel, or Kelley) for information on globalization methods.
+ 
+\end_layout
+
+\begin_layout Standard
+Our example problem is to solve
+\begin_inset Formula \[
+F(u)=u^{2}+x-\nabla^{2}u=0.\]
+
+\end_inset
+
+The derivative 
+\begin_inset Formula $\pd{F}{u}$
+\end_inset
+
+ is the Frechet derivative, computed implicitly through the Gateaux differential
+\begin_inset Formula \[
+d_{w}F=\pd{F}{u}w.\]
+
+\end_inset
+
+Note that the Gateaux differential is exactly what appears in the equation
+ for the Newton step, so we can write the linearized problem as
+\begin_inset Formula \[
+F(u_{n-1})+d_{w}F(u_{n-1})=0.\]
+
+\end_inset
+
+The Gateaux differential is defined by
+\begin_inset Formula \[
+d_{w}F(u_{n-1})=\lim_{\epsilon\to0}\frac{F(u_{n-1}+\epsilon w)-F(u_{n-1})}{\epsilon}\]
+
+\end_inset
+
+from which the usual rules of calculus can be derived.
+ For our example problem, we find
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+d_{w}F(u_{n-1})=2u_{n-1}w-\nabla^{2}w.\]
+
+\end_inset
+
+Therefore the linearized equation for the Newton step 
+\begin_inset Formula $w$
+\end_inset
+
+ is
+\begin_inset Formula \[
+\left[u_{n-1}^{2}+x-\nabla^{2}u_{n-1}\right]+\left[2u_{n-1}w-\nabla^{2}w\right]=0.\]
+
+\end_inset
+
+While we can do linearization by hand, it is difficult and error-prone for
+ complicated problems.
+ Sundance has a built-in automated differentiation capability so that linearized
+ equations can be derived automatically from a symbolic specification of
+ the nonlinear equations.
+ We will show examples of Newton's method with hand-coded linearized equations
+ and with automated linearization.
+\end_layout
+
+\begin_layout Subsubsection
+Newton's method with hand-coded derivatives
+\end_layout
+
+\begin_layout Standard
+First, we set up Newton's method by setting up a 
+\family typewriter
+LinearProblem
+\family default
+ object for the equation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\nabla^{2}u_{n}+\nabla^{2}w=u_{n}^{2}+2u_{n}w+x\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+u_{n}+w=0\]
+
+\end_inset
+
+for the step 
+\begin_inset Formula $w$
+\end_inset
+
+.
+ The unknown function is the step 
+\begin_inset Formula $w$
+\end_inset
+
+.
+ The previous iterate 
+\begin_inset Formula $u_{n}$
+\end_inset
+
+ is represented by a 
+\family typewriter
+DiscreteFunction
+\family default
+.
+ Here are the steps for creating the linear problem.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr w = new UnknownFunction(basis);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* other symbolic code omitted */
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr stepEqn = Integral(interior, 
+\end_layout
+
+\begin_layout Plain Layout
+
+	(grad*v)*(grad*(uPrev+w)) + v*(uPrev*uPrev + 2.0*uPrev*w+x), quad);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr stepBC = EssentialBC(bdry, v*(uPrev + w), quad);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+LinearProblem stepProb(mesh, stepEqn, stepBC, v, w, vecType);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now we can write the Newton algorithm.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+int maxIters = 20;
+\end_layout
+
+\begin_layout Plain Layout
+
+double tol = 1.0e-12;
+\end_layout
+
+\begin_layout Plain Layout
+
+bool converged = false;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+for (int i=0; i<maxIters; i++)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Expr step = stepProb.solve(solver);
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<double> stepVec = DiscreteFunction::discFunc(step)->getVector();
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<double> uPrevVec = DiscreteFunction::discFunc(uPrev)->getVector();
+\end_layout
+
+\begin_layout Plain Layout
+
+	DiscreteFunction::discFunc(uPrev)->setVector(uPrevVec + stepVec);
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (stepVec.norm2() < tol)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		converged = true;
+\end_layout
+
+\begin_layout Plain Layout
+
+		break;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+TEST_FOR_EXCEPTION(!converged, RuntimeError, 
+\end_layout
+
+\begin_layout Plain Layout
+
+	"Newton's method did not converge after " << maxIters << " steps");
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr soln = uPrev;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Newton's method is done.
+ The remainder of the code is for output of the solution and is unchanged
+ from the fixed-point code.
+\end_layout
+
+\begin_layout Subsubsection
+Newton's method with automated derivatives
+\begin_inset CommandInset label
+LatexCommand label
+name "par:Newton's-method-with"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+One of the most useful features of Sundance is its built-in automatic differenti
+ation capability.
+ You can write a nonlinear PDE as a Sundance 
+\family typewriter
+Expr
+\family default
+, and Sundance will do the Newton linearization for you.
+ 
+\end_layout
+
+\begin_layout Standard
+The weak form for equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:quadraticPoisson"
+
+\end_inset
+
+ is written
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr eqn = Integral(interior, (grad*u)*(grad*v) + (alpha*u*u + x)*v, quad);
+\end_layout
+
+\end_inset
+
+and the boundary conditions are written
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr bc = EssentialBC(bdry, v*u/h, quad); 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We use these to construct a 
+\family typewriter
+NonlinearProblem
+\family default
+ object, 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+NonlinearProblem nlp(mesh, eqn, bc, v, u, uPrev, vecType);
+\end_layout
+
+\end_inset
+
+Now we can write the Newton loop.
+ We obtain the Jacobian as a 
+\family typewriter
+LinearOperator
+\family default
+ and the residual as a 
+\family typewriter
+Vector
+\family default
+ through a member function of the 
+\family typewriter
+NonlinearProblem
+\family default
+.
+ We then solve the equation 
+\begin_inset Formula $Jw=-F(u_{n-1})$
+\end_inset
+
+ for the step 
+\begin_inset Formula $w$
+\end_inset
+
+.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for (int i=0; i<maxIters; i++)     
+\end_layout
+
+\begin_layout Plain Layout
+
+{       
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<double> stepVec;
+\end_layout
+
+\begin_layout Plain Layout
+
+	nlp.setInitialGuess(uPrev);
+\end_layout
+
+\begin_layout Plain Layout
+
+	nlp.computeJacobianAndFunction(J, residVec);
+\end_layout
+
+\begin_layout Plain Layout
+
+	solver.solve(J, -1.0*residVec, stepVec);
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+	double stepNorm = stepVec.norm2();              
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<double> uPrevVec =DiscreteFunction::discFunc(uPrev)->getVector();
+\end_layout
+
+\begin_layout Plain Layout
+
+	DiscreteFunction::discFunc(uPrev)->setVector(uPrevVec + stepVec);
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+	Out::root() << "Iter=" << setw(5) << i << " ||Delta u||=" << setw(20) 
+                  << stepNorm << endl;              
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (stepNorm < tol)        
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ converged = true; break; }     
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
+\end_layout
+
+\end_inset
+
+Notice that in this loop we 
+\end_layout
+
+\begin_layout Subsubsection
+Black-box Newton's method with automated derivatives
+\end_layout
+
+\begin_layout Section
+Steady-state Navier-Stokes equations
+\end_layout
+
+\begin_layout Section
+Time-dependent Burgers equation
+\end_layout
+
+\begin_layout Section
+Time-dependent Navier-Stokes equations
+\end_layout
+
+\begin_layout Subsection
+Fully-implicit solution
+\end_layout
+
+\begin_layout Subsection
+Pressure projection solution
+\end_layout
+
+\begin_layout Section
+Exercises
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $V$
+\end_inset
+
+ be a vector space of functions on a spatial domain 
+\begin_inset Formula $\Omega.$
+\end_inset
+
+ The least-squares approximation in 
+\begin_inset Formula $V$
+\end_inset
+
+ to a function 
+\begin_inset Formula $f$
+\end_inset
+
+ is given by the orthogonal projection of 
+\begin_inset Formula $f$
+\end_inset
+
+ onto 
+\begin_inset Formula $V$
+\end_inset
+
+.
+ The solution 
+\begin_inset Formula $u$
+\end_inset
+
+ to 
+\begin_inset Formula \begin{equation}
+\int_{\Omega}\left(f-u\right)v\, d\Omega=0\;\;\;\forall v\in V\label{eq:orthoProjExerciseEqn}\end{equation}
+
+\end_inset
+
+is the orthogonal projection.
+ Let 
+\begin_inset Formula $\Omega$
+\end_inset
+
+ be the unit square, and take 
+\begin_inset Formula $f=\sin\left(2x\right)e^{y}$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $V$
+\end_inset
+
+ be the first-order Lagrange polynomials defined on a mesh of 
+\begin_inset Formula $\Omega$
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Write a program that sets up and solves a 
+\family typewriter
+LinearProblem
+\family default
+ representing equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:orthoProjExerciseEqn"
+
+\end_inset
+
+.
+ Your program should compute the 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+ norm of the approximation error, 
+\begin_inset Formula $e_{h}=\left\Vert u-f\right\Vert _{2}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Run the program on a sequence of meshes with decreasing 
+\begin_inset Formula $h$
+\end_inset
+
+.
+ Plot 
+\begin_inset Formula $e_{h}$
+\end_inset
+
+ versus 
+\begin_inset Formula $h$
+\end_inset
+
+ on a log-log plot, and use these results to find the order of accuracy
+ 
+\begin_inset Formula $p$
+\end_inset
+
+ such that 
+\begin_inset Formula $e_{h}=O(h^{p})$
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Consider the steady-state radiation diffusion equation,
+\begin_inset Formula \[
+\nabla^{2}\left(u^{4}\right)=0\]
+
+\end_inset
+
+on the unit square with boundary conditions
+\begin_inset Formula \[
+u=\left(1+\sin\left(\pi x\right)\right)^{1/4}\;\;\;\;\mbox{along the line }y=1\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+u=1\;\;\mbox{elsewhere on }\Gamma.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Derive a weak form of the problem
+\end_layout
+
+\begin_layout Enumerate
+Derive a linearized weak form for the Newton step 
+\begin_inset Formula $w=u_{n}-u_{n-1}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Suppose you were to use an initial guess 
+\begin_inset Formula $u_{0}=0$
+\end_inset
+
+ in Newton's method.
+ What would happen, and why? 
+\end_layout
+
+\begin_layout Enumerate
+Write a program to set up and solve this problem using Newton's method.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Modify the Newton loop in example 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "par:Newton's-method-with"
+
+\end_inset
+
+ so that the convergence test uses the 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+ norm of the step, rather than the 2-norm of the step vector.
+\end_layout
+
+\begin_layout Chapter
+Geometry
+\end_layout
+
+\begin_layout Standard
+Sundance solves PDEs on geometric domains that have been discretized to
+ meshes.
+ With a few simple exceptions, Sundance does not create meshes itself; usually,
+ one will mesh a domain using an external meshing program such as Cubit
+ or Triangle, and then read the results into Sundance.
+\end_layout
+
+\begin_layout Standard
+When solving a PDE on a mesh, one needs to associate equations or boundary
+ conditions with certain parts of the mesh.
+ Identification of mesh entities (called cells) is done using 
+\family typewriter
+CellFilter
+\family default
+ objects which examine the mesh cells and then 
+\begin_inset Quotes eld
+\end_inset
+
+filter
+\begin_inset Quotes erd
+\end_inset
+
+ those that obey a specified condition.
+\end_layout
+
+\begin_layout Section
+Meshes
+\end_layout
+
+\begin_layout Standard
+Meshes are represented by Mesh objects.
+ These objects are typically very large, so copies are shallow; that is,
+ if you write code such as
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Mesh mesh1 = getMyMeshFromSomewhere();
+\end_layout
+
+\begin_layout Plain Layout
+
+Mesh mesh2 = mesh1;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in which one mesh object is assigned to another, then both objects point
+ to the same underlying data.
+ 
+\end_layout
+
+\begin_layout Standard
+When writing simulation codes, you will rarely need any of the member functions
+ of the mesh class.
+ Refer to the Doxygen documentation for information on member functions.
+\end_layout
+
+\begin_layout Subsection
+Mesh types
+\end_layout
+
+\begin_layout Standard
+Several types of mesh implementations are available in Sundance.
+ In this manual, we will consider only one of them, the BasicSimplicialMesh.
+ As the name indicates, this mesh type is restricted to simplices (tetrahedra,
+ triangles, lines, and points).
+ Any mesher or mesh reader has to know what type of mesh to make or to read.
+ That specification is done via the MeshType object.
+ Here we construct a basic simplicial mesh type,
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+MeshType meshType = new BasicSimplicialMeshType();
+\end_layout
+
+\end_inset
+
+The use of this object will be shown below.
+\end_layout
+
+\begin_layout Subsection
+Mesh sources
+\end_layout
+
+\begin_layout Standard
+Meshes can be created at runtime or read from a file.
+ Both modes of creation are represented by a common 
+\family typewriter
+MeshSource
+\family default
+ user interface.
+ 
+\family typewriter
+MeshSource
+\family default
+ is an abstract, extensible interface for mesh readers and mesh generators;
+ several subtypes (listed below) have been implemented.
+ Once created, an existing mesh can be transformed into another by means
+ of a 
+\family typewriter
+MeshTransformation
+\family default
+ object.
+\end_layout
+
+\begin_layout Standard
+In the following example, we use a 
+\family typewriter
+MeshSource
+\family default
+ to read an 
+\family typewriter
+Exodus
+\family default
+ file 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+mesh.exo
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and produce a 
+\family typewriter
+Mesh.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+MeshType meshType = new BasicSimplicialMeshType();
+\end_layout
+
+\begin_layout Plain Layout
+
+MeshSource reader = new ExodusMeshReader("wing", meshType); 
+\end_layout
+
+\begin_layout Plain Layout
+
+Mesh mesh = reader.getMesh(); 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Several points need to be mentioned.
+ First is that the argument meshType specifies the low-level mesh implementation
+ to be used (here, BasicSimplicialMeshType).
+ Second, the suffix of the filename has been dropped: the argument 
+\begin_inset Quotes eld
+\end_inset
+
+wing
+\begin_inset Quotes erd
+\end_inset
+
+ is used for the file 
+\begin_inset Quotes eld
+\end_inset
+
+wing.exo.
+\begin_inset Quotes erd
+\end_inset
+
+ There is a reason for this: a mesh that has been partitioned for use in
+ a parallel simulation will need to be distributed among several files,
+ the names of which must be determined from a root such as 
+\begin_inset Quotes eld
+\end_inset
+
+wing.
+\begin_inset Quotes erd
+\end_inset
+
+ For example, a four-processor run might need to find the files
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+wing.pxo 
+\end_layout
+
+\begin_layout Plain Layout
+
+wing.4.0.exo
+\end_layout
+
+\begin_layout Plain Layout
+
+wing.4.1.exo
+\end_layout
+
+\begin_layout Plain Layout
+
+wing.4.2.exo
+\end_layout
+
+\begin_layout Plain Layout
+
+wing.4.3.exo
+\end_layout
+
+\end_inset
+
+all of which can be determined with the name 
+\begin_inset Quotes eld
+\end_inset
+
+wing,
+\begin_inset Quotes erd
+\end_inset
+
+ the communicator size, and the processor's rank.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Mesh readers
+\end_layout
+
+\begin_layout Standard
+Currently, reading from Exodus, NetCDF, and Triangle files is supported.
+ This manual will consider only Exodus readers; see the Doxygen for information
+ on the other reader types
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Exodus is a binary mesh file format developed at Sandia National Laboratories.
+ The NetCDF and Triangle readers exist for historical reasons: the Exodus
+ I/O library used to have a restrictive license, requiring use of an alternative
+ format for use outside Sandia.
+ The Exodus library is now released open source, so while the NetCDF and
+ Triangle readers still exist the Exodus reader is most widely used because
+ the Exodus format is supported natively by a number of meshing programs
+ such as Cubit.
+ 
+\end_layout
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Runtime mesh generators
+\end_layout
+
+\begin_layout Standard
+Sufficiently simple regions can be meshed at runtime.
+ Rectangles in 2D can be meshed in parallel with the PartitionedRectangleMesher,
+ and 1D intervals with the PartitionedLineMesher.
+ Refer to the Doxygen and to the examples for the arguments.
+ 
+\end_layout
+
+\begin_layout Section
+Cell filters
+\end_layout
+
+\begin_layout Standard
+A weak PDE problem is stated in terms of integrals over subsets of a geometric
+ domain.
+ Typically, there will be an integral over the interior plus surface terms
+ for the boundary conditions.
+ In other cases such as fluid-structure interactions we may apply different
+ weak equations on distinct maximal-dimension subsets of the entire domain.
+ There may be point forces applied, or in the case of inverse problems,
+ measurements taken at some subset of points.
+ In contact problems, the subdomains on which constraints are to be applied
+ will be determined as part of the solution.
+ It is thus necessary to have a very flexible system for specification of
+ geometric regions.
+\end_layout
+
+\begin_layout Standard
+Any specification of a domain of integration must be able to identify on
+ a mesh the set of cells on which a particular integration is to be done.
+ In general, then, a specification of a subregion is a specification of
+ a 
+\emph on
+filter
+\emph default
+ that can extract from a mesh the subset of cells which satisfies some condition
+, i.e., those cells that "pass through" the filter.
+ 
+\end_layout
+
+\begin_layout Subsection
+Filters on meshes
+\end_layout
+
+\begin_layout Standard
+The coarsest view of a mesh is simply as the set of its cells.
+ Any subset of these cells can be produced through an appropriate filter
+ acting on the mesh.
+ The Sundance 
+\family typewriter
+CellFilter
+\family default
+ object does this job.
+ 
+\end_layout
+
+\begin_layout Standard
+The simplest cell filters are those based on cell dimension
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+MaximalCellFilter
+\family default
+ passes all cells of maximal dimension (
+\emph on
+i.e.
+
+\emph default
+ dimension equal to the spatial dimension of the mesh).
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+DimensionalCellFilter
+\family default
+ passes all cells of a specified dimension
+\end_layout
+
+\begin_layout Standard
+These two filter types will be used in nearly every problem, because you'll
+ construct more complex filters through operations on these two fundamental
+ filters.
+\end_layout
+
+\begin_layout Subsubsection
+Selecting cells by label
+\end_layout
+
+\begin_layout Standard
+Most mesh generation programs allow labeling of volumes, surfaces, curves,
+ and vertices.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CellFilter faces = new DimensionalCellFilter(2);
+\end_layout
+
+\begin_layout Plain Layout
+
+CellFilter top = faces.labeledSubset(7);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Selecting cells by predicate
+\end_layout
+
+\begin_layout Standard
+Selecting cells by some criterion other than label requires working with
+ predicates.
+ Predicates are represented by CellPredicate objects.
+ CellPredicate is a handle class for CellPredicateBase, which defines an
+ abstract interface for predicates.
+ If you have defined some predicate type MySpecialPredicate, you would use
+ it as follows:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CellPredicate myPred = new MySpecialPredicate();
+\end_layout
+
+\begin_layout Plain Layout
+
+CellFilter mySpecialFaces = faces.subset(myPred); 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A shortcut is to construct within the subset() function,
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CellFilter mySpecialFaces = faces.subset(new MySpecialPredicate()); 
+\end_layout
+
+\end_inset
+
+which does the same thing with a little less typing.
+\end_layout
+
+\begin_layout Subsubsection
+Selecting cells having a specified coordinate value
+\end_layout
+
+\begin_layout Standard
+A very common filtering operation is to select all cells whose vertices
+ have a specified coordinate value, say, 
+\begin_inset Formula $y=2.$
+\end_inset
+
+ The predicate to test whether the 
+\begin_inset Formula $i$
+\end_inset
+
+-th coordinate 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ is within a tolerance 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ of 
+\begin_inset Formula $a$
+\end_inset
+
+ is written
+\begin_inset Formula \[
+p_{i,a,\epsilon}(\mathbf{x})=\begin{cases}
+1 & \left|x_{i}-a\right|\le\epsilon\\
+0 & \mbox{otherwise}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There is a predefined object for this, CoordinateValueCellPredicate.
+ The constructor for this object takes two required arguments: a coordinate
+ index 
+\begin_inset Formula $i$
+\end_inset
+
+ and a coordinate value 
+\begin_inset Formula $a$
+\end_inset
+
+, and an optional tolerance 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CellFilter edges = new DimensionalCellFilter(1);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Select edges having vertices at y=2.0.
+ Default tolerance used.
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+CellFilter y2 = edges.subset(new CoordinateValueCellPredicate(1, 2.0));
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Select edges having vertices at x=5.0 to a tolerance of 1.0e-4.
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+CellFilter x5 = edges.subset(new CoordinateValueCellPredicate(0, 5.0, 1.0e-4));
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The default tolerance is 
+\begin_inset Formula $\epsilon=10^{-10}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Writing a user-defined position-based predicate
+\end_layout
+
+\begin_layout Standard
+If you want to write a predicate that is a more complicated function of
+ vertex position, you'll need to write a subclass of CellPredicateFunctorBase.
+ The subclass must define a function operator() which takes a Point object;
+ this function should return true if a vertex's position satisfies the predicate
+'s condition.
+ 
+\end_layout
+
+\begin_layout Standard
+For example, here is a predicate that tests whether a point is a specified
+ distance 
+\begin_inset Formula $a$
+\end_inset
+
+ from the origin, to within a tolerance of 
+\begin_inset Formula $10^{-5}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+class RadiusTest: public CellPredicateFunctorBase
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+public:
+\end_layout
+
+\begin_layout Plain Layout
+
+	/** Constructor */
+\end_layout
+
+\begin_layout Plain Layout
+
+	RadiusTest(double a) 
+\end_layout
+
+\begin_layout Plain Layout
+
+	: CellPredicateFunctorBase("RadiusTest(" + Teuchos::toString(a)+")"), 
+\end_layout
+
+\begin_layout Plain Layout
+
+	  a_(a), tol_(1.0e-10) {}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	/** */
+\end_layout
+
+\begin_layout Plain Layout
+
+	bool operator()(const Point& x) const {return std::fabs(x*x-a_*a_) < tol_;}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+private:
+\end_layout
+
+\begin_layout Plain Layout
+
+	double a_;
+\end_layout
+
+\begin_layout Plain Layout
+
+	double tol_;
+\end_layout
+
+\begin_layout Plain Layout
+
+};
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+You can write arbitrarily complicated tests in this way.
+ Once such a class has been defined, it can be used in filters,
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CellFilter faces = new DimensionalCellFilter(2);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Select faces whose vertices are at r=3.
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+CellFilter r3 = edges.subset(new RadiusTest(3.0));
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Simple creation of predicates through the CELL_PREDICATE macro
+\end_layout
+
+\begin_layout Standard
+CELL_PREDICATE is a helper macro that lets you streamline the creation of
+ sufficiently simple CellPredicateFunctorBase subtypes.
+ Suppose your problem's geometry has a feature, the 
+\begin_inset Quotes eld
+\end_inset
+
+nozzle,
+\begin_inset Quotes erd
+\end_inset
+
+ on the disk 
+\begin_inset Formula $z=4$
+\end_inset
+
+, 
+\begin_inset Formula $x^{2}+y^{2}\le1$
+\end_inset
+
+.
+ You can then write
+\begin_inset Formula $ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CELL_PREDICATE(NozzlePointTest,
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+double r2 = x[0]*x[0]+x[1]*x[1];
+\end_layout
+
+\begin_layout Plain Layout
+
+double z = x[2];                 
+\end_layout
+
+\begin_layout Plain Layout
+
+bool rtn = (r2 <= 1.0) && (std::fabs(z-4.0)<1.0e-6);
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+return rtn;
+\backslash
+                
+\end_layout
+
+\begin_layout Plain Layout
+
+})
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Use in code is then
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+CellFilter nozzle = faces.subset(new NozzlePointTest());
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The limitation of the macro is that it is not possible to pass arguments
+ to the predicate's constructor, 
+\emph on
+i.e.
+\emph default
+, you cannot vary the position 
+\begin_inset Formula $z$
+\end_inset
+
+ of the nozzle at runtime by means of a constructor argument.
+ 
+\end_layout
+
+\begin_layout Chapter
+Discrete vector spaces
+\end_layout
+
+\begin_layout Subsection
+Basis families
+\end_layout
+
+\begin_layout Standard
+Lagrange and friends
+\end_layout
+
+\begin_layout Subsection
+DiscreteSpace objects
+\end_layout
+
+\begin_layout Standard
+How integrations are done
+\end_layout
+
+\begin_layout Chapter
+Symbolic expressions
+\end_layout
+
+\begin_layout Section
+Expression subtypes
+\end_layout
+
+\begin_layout Subsection
+Lists
+\end_layout
+
+\begin_layout Standard
+Expressions can be grouped into lists with an arbitrary structure.
+ Important special cases are scalar, vector, and tensor expressions, but
+ lists can have heterogeneous structure as well.
+ Here's an example; don't worry for now what the function types mean; concentrat
+e on the list structure.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+/* Create a vector-valued expression */
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr vx = new TestFunction(new Lagrange(2));
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr vy = new TestFunction(new Lagrange(2));
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr v = List(vx, vy);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Create a scalar-valued expression */
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr q = new TestFunction(new Lagrange(1));
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Create a heterogeneous list {{vx,vy},q}.
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr vq = List(v, q);          
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Operations on lists
+\end_layout
+
+\begin_layout Standard
+Lists with identical structures can be added and subtracted.
+ If the structures are not identical an exception is thrown.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+/* x={a,b},y={c,d},z={e,f,g} */
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr sum = x+y;     // returns {a+c, b+d}
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr diff = x-y;    // return  {a-c, b-d}
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr bogus = x+z;   // FAILS! A runtime error will be thrown.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The multiplication operator (*) on lists denotes the inner product between
+ vectors or tensors; the operands must have list structure such that an
+ inner product is defined.
+ Multiplication of a scalar by a list threads the multiplication over the
+ list entries.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr x_dot_y = x*y;      // returns a*c + b*d
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr x2 = 2.0*x;         // returns {2*a, 2*b}
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr bogus2 = z*x;       // FAILS!  
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The * operator is also used to represent the application of a differential
+ operator (see below).
+\end_layout
+
+\begin_layout Standard
+Division of a list by a scalar threads the division over the list entries.
+ Division 
+\emph on
+by
+\emph default
+ a list is not defined.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr x_over_4 = x/4.0;      // returns {a/4.0, b/4.0}
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr bogus3 = x/y;          // FAILS! Division by {c,d} is nonsense.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Low-level list creation.
+ 
+\end_layout
+
+\begin_layout Standard
+The List function works for up to ten arguments.
+ To create a list with more than 
+\begin_inset Formula $10$
+\end_inset
+
+ elements, incrementally add elements using the append() function.
+ 
+\end_layout
+
+\begin_layout Subsection
+Constants and parameters
+\end_layout
+
+\begin_layout Standard
+The simplest type of Expr to create is a real-valued constant expression.
+ For example,
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr solarMass = 2.0e33; // Mass of the Sun in grams
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Any double-precision constant appearing in an expression, for instance,
+ the constant 
+\begin_inset Formula $2.0$
+\end_inset
+
+ in the expression
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr f = 2.0*g;
+\end_layout
+
+\end_inset
+
+will be represented internally by a constant-valued expression.
+ 
+\emph on
+It is important to understant that once created and used in an expression,
+ a constant's value is immutable.
+ Should you want to change the expression's value during runtime, you should
+ instead use a Parameter.
+ 
+\end_layout
+
+\begin_layout Standard
+For example, the following code to print a sequence of pairs 
+\begin_inset Formula $\left(t_{i},\sin\left(\pi t_{i}\right)\right)$
+\end_inset
+
+ will not work as intended:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr time = 0.0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr f = sin(pi*time); 
+\end_layout
+
+\begin_layout Plain Layout
+
+for (int i=0; i<10; i++) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	Out::os() << time << " " << f << endl;         
+\end_layout
+
+\begin_layout Plain Layout
+
+	// update the time         
+\end_layout
+
+\begin_layout Plain Layout
+
+	time = 0.1*i; 
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To get the intended effect of updating time in the expression 
+\begin_inset Formula $f(t)=\sin\left(\pi t\right)$
+\end_inset
+
+, do the following
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr time = new Parameter(0.0); 
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr f = sin(pi*time);
+\end_layout
+
+\begin_layout Plain Layout
+
+for (int i=0; i<10; i++) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{         
+\end_layout
+
+\begin_layout Plain Layout
+
+	Out::os() << time << " " << f << endl;         
+\end_layout
+
+\begin_layout Plain Layout
+
+	// update the time         
+\end_layout
+
+\begin_layout Plain Layout
+
+	time.setParameterValue(0.1*i); 
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To summarize the difference between constants and parameters: constants
+ are constant with respect to the mesh and with respect to runtime, whereas
+ parameters are constants with respect to the mesh but variable with respect
+ to runtime.
+ That is, a constant has the same value at every point in the mesh, and
+ cannot be changed during runtime.
+ A parameter has the same value at every point in the mesh, but that value
+ can be changed during runtime.
+ 
+\end_layout
+
+\begin_layout Subsection
+Coordinates and derivatives
+\end_layout
+
+\begin_layout Standard
+You can build position-dependent functions using coordinate functions, which
+ represent the Cartesian coordinates.
+ A coordinate function is created using the CoordExpr constructor with an
+ integer zero-based index specifying the coordinate direction.
+ Index 
+\begin_inset Formula $0$
+\end_inset
+
+ gives the coordinate function 
+\begin_inset Formula $x$
+\end_inset
+
+, indices 1 and 2 gives 
+\begin_inset Formula $y$
+\end_inset
+
+ and 
+\begin_inset Formula $z$
+\end_inset
+
+, respectively.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},extendedchars=true,language={[ANSI]C++},tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr x = CoordExpr(0);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr y = CoordExpr(1);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr r = sqrt(x*x+y*y);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Partial differential operators are created in a similar way: the operator
+ 
+\begin_inset Formula $\pd{}{x}$
+\end_inset
+
+ is represented by 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},extendedchars=true,language={[ANSI]C++},tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr dx = Derivative(0);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The application of a differential operator to an expression is done using
+ the * operator.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},extendedchars=true,language={[ANSI]C++},tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr dr_dx = dx*r;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Vector differential operators
+\end_layout
+
+\begin_layout Standard
+The operations of vector calculus can be composed directly from partial
+ derivative operators.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr curlU = curl(u);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr divU = div(u);
+\end_layout
+
+\end_inset
+
+is equivalent to
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr curlU = cross(del, u);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr divU = del*u;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Tensor expressions such as 
+\begin_inset Formula $\nabla\mathbf{v}\colon\nabla\mathbf{u}$
+\end_inset
+
+ appearing in the weak Navier-Stokes equations can be carried out with the
+ 
+\family typewriter
+outerProduct
+\family default
+ and 
+\family typewriter
+colonProduct
+\family default
+ functions
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr gradVColonGradU = colonProduct( outerProduct(del, v), outerProduct(del,
+ u) );
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Test and unknown functions
+\end_layout
+
+\begin_layout Standard
+The unknown and test functions appearing in a weak problem are represented
+ by the UnknownFunction and TestFunction classes.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+BasisFamily P2 = new Lagrange(2);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr q = new TestFunction(new Lagrange(1));
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr u = new UnknownFunction(List(P2, P2, P2));
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Discrete functions
+\end_layout
+
+\begin_layout Section
+Operations
+\end_layout
+
+\begin_layout Subsection
+Elementary functions
+\end_layout
+
+\begin_layout Subsection
+User-defined functions
+\end_layout
+
+\begin_layout Chapter
+Weak forms and boundary conditions
+\end_layout
+
+\begin_layout Section
+Weak forms
+\end_layout
+
+\begin_layout Standard
+A weak form is an expression such as
+\begin_inset Formula \[
+\int_{\Omega}\kappa\nabla v\cdot\nabla u\, d\Omega-\int_{\Gamma}gv\, d\Gamma.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The integrands can be composed out of objects (type 
+\family typewriter
+Expr
+\family default
+) such as 
+\family typewriter
+kappa
+\family default
+, 
+\family typewriter
+v
+\family default
+, 
+\family typewriter
+u
+\family default
+, and 
+\family typewriter
+g
+\family default
+ representing the mathematical quantities 
+\begin_inset Formula $\kappa,v,u$
+\end_inset
+
+, and 
+\begin_inset Formula $g$
+\end_inset
+
+.
+ The regions 
+\begin_inset Formula $\Omega$
+\end_inset
+
+ and 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ are represented by cell filters, say 
+\family typewriter
+omega
+\family default
+ and 
+\family typewriter
+gamma
+\family default
+.
+ Additionally, it is necessary to specify how the integrals are to be computed;
+ this specification is done by a QuadratureFamily object, called, say, 
+\family typewriter
+quad
+\family default
+.
+ An object 
+\family typewriter
+wf
+\family default
+ for the weak form shown above would then be created by the following code
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr wf = Integral(omega, kappa*(grad*v)*(grad*u), quad)
+\end_layout
+
+\begin_layout Plain Layout
+
+	- Integral(gamma, g*v, quad);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Quadrature
+\end_layout
+
+\begin_layout Standard
+Specification of a weak form must include specification of a method for
+ computing the necessary integrals.
+ This is done through the 
+\family typewriter
+QuadratureFamily
+\family default
+ class hierarchy, which provides an interface for building quadrature rules
+ appropriate to a cell type.
+ The most widely used quadrature family is 
+\family typewriter
+GaussianQuadrature
+\family default
+, which produces Gauss rules on lines, and
+\end_layout
+
+\begin_layout Itemize
+Gauss-Dunavant symmetric rules on triangles and tets, if such a rule is
+ available for the order requested
+\end_layout
+
+\begin_layout Itemize
+Collapsed (non-symmetric) tensor product Gauss rules on triangles and tets,
+ if no Gauss-Dunavant rule is available.
+ These rules will integrate polynomials exactly up to the specified order,
+ but may perform poorly on other functions (including higher-order polynomials)
+ because the points are biased towards one of the corners.
+\end_layout
+
+\begin_layout Itemize
+Tensor-product Gauss rules on quads and hexes.
+\end_layout
+
+\begin_layout Standard
+Other families include Fekete and low-order Newton-Cotes quadrature, sometimes
+ preferred for specialized purposes.
+ An example of quadrature specification is
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+QuadratureFamily quad4 = new GaussianQuadrature(4);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr wk = Integral(someCells, someExpr, quad4);
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+In some cases, the quadrature order required can't be determined at runtime,
+ so a 
+\family typewriter
+QuadratureFamily
+\family default
+ object can't be constructed directly.
+ The 
+\family typewriter
+QuadratureType
+\family default
+ class heirarchy provides factory objects that can build 
+\family typewriter
+QuadratureFamily
+\family default
+ objects dynamically given a specification of order.
+ 
+\end_layout
+
+\begin_layout Subsection
+Integral expressions
+\end_layout
+
+\begin_layout Standard
+Definite integrals play a central role in finite element methods so you
+ will use integral expressions in nearly every simulation.
+ Integrals are represented internally by an expression subtype that is rarely
+ constructed directly.
+ Almost always you will build integrals using the 
+\family typewriter
+Integral
+\family default
+ function, as in the first example in this section.
+ There is a limited set of operations on integral expressions: you can add
+ or subtract two integrals, and you can multiply integrals by an expression
+ that is constant in space.
+ Other operations, even mathematically well-defined operations such as 
+\begin_inset Formula $\sqrt{\int_{0}^{1}f^{2}\, dx}$
+\end_inset
+
+, cannot be done using integral expressions.
+ Here is an example of some operations, valid and not: 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr I1 = Integral(omega1, v*f, quad1);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr I2 = Integral(omega2, v*g, quad2);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr I3 = Integral(omega1, v*g, quad2);
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr I4 = Integral(omega2, v*f, quad2);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr total = I1 + 2.0*I2 - I3 + 3.0*I4;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr crash = I1*I2;        // mathematically valid, but not defined in code
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr burn = sqrt(I1);      // mathematically valid, but not defined in code
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr nonsense = dx*I3;     // mathematically undefined (I3 is definite!)
+\end_layout
+
+\end_inset
+
+It is worth commenting on several points in this example.
+ 
+\end_layout
+
+\begin_layout Itemize
+There are two different quadrature methods used, 
+\family typewriter
+quad1
+\family default
+ and 
+\family typewriter
+quad2
+\family default
+.
+ Therefore, although 
+\family typewriter
+I1
+\family default
+ and 
+\family typewriter
+I3
+\family default
+ are defined on the same cell filter, their difference 
+\family typewriter
+I1-I3
+\family default
+ 
+\emph on
+cannot
+\emph default
+ be combined into a single function call 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Integral(omega1, v*(f-g), doh)
+\end_layout
+
+\end_inset
+
+Upon computing I1-I3, the integrands are stored separately, each associated
+ with its unique combination of cell filter and quadrature family
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Advanced users who explore Sundance's internals will encounter objects called
+ region-quad combinations (RQC) which are used to tag integrands.
+\end_layout
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+Integral expressions having the same cell filters and the same quadrature
+ rules are, when added or subtracted, collected into a single object.
+ In the example, I2 and I4 have the same cell filter (omega1) and the same
+ quadrature family (quad2) so that 2.0*I2 + 3.0*I4 is exactly equivalent to
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Integral(omega1, v*(2.0*f + 3.0*g), quad2)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Be careful: Note that
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Integral(omega1, v*f, quad1)+Integral(omega2, v*f, quad2)
+\end_layout
+
+\end_inset
+
+is equivalent to 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Integral(omega1+omega2, v*f, quad1)
+\end_layout
+
+\end_inset
+
+but that 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Integral(omega1, v*f, quad1)-Integral(omega2, v*f, quad2)
+\end_layout
+
+\end_inset
+
+is 
+\emph on
+not
+\emph default
+ equivalent to 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Integral(omega1-omega2, v*f, quad1)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Neumann and Robin BC
+\end_layout
+
+\begin_layout Standard
+With a Neumann BC we specify the normal derivative of the unknown 
+\begin_inset Formula $u$
+\end_inset
+
+, for example, 
+\begin_inset Formula \[
+\kappa\mathbf{n\cdot\nabla}u=g\]
+
+\end_inset
+
+In a Galerkin formulation these are easily implemented because the normal
+ derivative appears explictly after integration by parts.
+ For example, the weak Poisson equation is
+\begin_inset Formula \[
+\int_{\Omega}\kappa\nabla v\cdot\nabla u\, d\Omega-\int_{\Gamma}v\kappa\mathbf{n\cdot}\nabla u\, d\Gamma=0.\]
+
+\end_inset
+
+Substituting 
+\begin_inset Formula $g$
+\end_inset
+
+ for 
+\begin_inset Formula $\kappa\mathbf{n\cdot\nabla}u$
+\end_inset
+
+ in the surface term
+\begin_inset Formula \[
+\int_{\Omega}\kappa\nabla v\cdot\nabla u\, d\Omega-\int_{\Gamma}vg\, d\Gamma=0\]
+
+\end_inset
+
+gives consistency.
+ The surface integral is implemented just like any other integral: with
+ the 
+\family typewriter
+Integral
+\family default
+ function.
+ For example,
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr neumSurfIntegral = Integral(gammaNeum, v*g, quad);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that the expression 
+\begin_inset Formula $g$
+\end_inset
+
+ may be an arbitrary function of 
+\begin_inset Formula $u$
+\end_inset
+
+, so that nonlinear boundary conditions such as the radiative condition
+\begin_inset Formula \[
+\kappa\mathbf{n\cdot\nabla}u=-\sigma\left(u^{4}-u_{0}^{4}\right)\]
+
+\end_inset
+
+may be implemented in this way.
+ Simply replace 
+\begin_inset Formula $g$
+\end_inset
+
+ with 
+\begin_inset Formula $-\sigma\left(u^{4}-u_{0}^{4}\right)$
+\end_inset
+
+ in the code above.
+\end_layout
+
+\begin_layout Standard
+A Robin BC specifies a linear combination of the unknown and its normal
+ derivative, for example
+\begin_inset Formula \[
+-\alpha\left(u-u_{R}\right)+\kappa\mathbf{n}\cdot\nabla u=0.\]
+
+\end_inset
+
+As with a Neumann BC, we can substitute for 
+\begin_inset Formula $\kappa\mathbf{n\cdot\nabla}u$
+\end_inset
+
+ in the surface term to obtain
+\begin_inset Formula \[
+\int_{\Omega}\kappa\nabla v\cdot\nabla u\, d\Omega-\int_{\Gamma}\alpha v\left(u-u_{R}\right)\, d\Gamma=0.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Dirichlet BC
+\end_layout
+
+\begin_layout Standard
+Imposing Dirichlet BCs is less straightforward than imposing Neumann and
+ Robin BCs.
+ There are several alternatives 
+\end_layout
+
+\begin_layout Subsection
+Nitsche's method
+\end_layout
+
+\begin_layout Standard
+Nitsche devised a clever method for applying Dirichlet BC in such a way
+ that symmetry and coercivity are preserved.
+ Modify the weak Poisson equation by adding the terms indicated by an underbrace.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\int_{\Omega}\kappa\nabla v\cdot\nabla u\, d\Omega-\int_{\Gamma_{D}}v\kappa\mathbf{n}\cdot\nabla u\, d\Gamma\underbrace{-\int_{\Gamma_{D}}\left(u-u_{D}\right)\kappa\mathbf{n}\cdot\nabla v\, d\Gamma+\gamma\int_{\Gamma_{D}}h^{-1}\kappa v\left(u-u_{D}\right)\, d\Gamma}=0.\]
+
+\end_inset
+
+The additional terms are zero when the BC are satisfied, so the modified
+ problem is consistent.
+ Clearly the weak form is symmetric.
+ Nitsche proved that there is a 
+\begin_inset Formula $\gamma_{0}>0$
+\end_inset
+
+ such that coercivity is obtained for all 
+\begin_inset Formula $\gamma>\gamma_{0}$
+\end_inset
+
+.
+ Coercivity implies stability, which together with consistency and the Lax-Milgr
+am lemma implies convergence.
+ 
+\end_layout
+
+\begin_layout Standard
+One can easily code the boundary terms by hand, however, it is a common
+ enough operation to warrant a packaged solution
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr nitscheBC = NitschePoissonDirichletBC(dim, diriSurf, quad, kappa, 
+\end_layout
+
+\begin_layout Plain Layout
+
+	v, u, uD, gamma);
+\end_layout
+
+\end_inset
+
+which returns all three surface terms in the weak form above.
+ 
+\end_layout
+
+\begin_layout Standard
+Note that this operation is specific to BC arising in Poisson's equation
+ and variants thereof, for example the steady radiation diffusion equation
+ in which case 
+\begin_inset Formula $\kappa=u^{3}.$
+\end_inset
+
+ Dirichlet BCs 
+\begin_inset Formula $u=u_{D}$
+\end_inset
+
+ when 
+\begin_inset Formula $\kappa=u^{3}$
+\end_inset
+
+ would be implemented through 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr nitscheBC = NitschePoissonDirichletBC(dim, diriSurf, quad, pow(u,3),
+\end_layout
+
+\begin_layout Plain Layout
+
+	v, u, uD, gamma);
+\end_layout
+
+\end_inset
+
+The convergence theory requires 
+\begin_inset Formula $u>0$
+\end_inset
+
+ (which is, of course, also required on physical grounds because the temperature
+ must be positive).
+\end_layout
+
+\begin_layout Standard
+In general, a Nitsche method must be derived for each operator.
+ Methods for some common operators are available in the literature, for
+ example, a Nitsche method has been formulated for no-slip BC 
+\begin_inset Formula $\mathbf{u=u_{BC}}$
+\end_inset
+
+ for the Stokes or Navier-Stokes equations.
+ This is also available as a packaged function in the Sundance library,
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr bc = NitscheStokesNoSlipBC(diriSurf, quad, nu, v, q, u, p, uBC, C1,
+ C2);
+\end_layout
+
+\end_inset
+
+where 
+\begin_inset Formula $\nu$
+\end_inset
+
+ is the viscosity and 
+\begin_inset Formula $C_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $C_{2}$
+\end_inset
+
+ are positive constants.
+ 
+\end_layout
+
+\begin_layout Standard
+When available, the Nitsche method preserves symmetry and obtains good scaling.
+ A minor disadvantage is the need to estimate constants such as 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ or 
+\begin_inset Formula $C_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $C_{2}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Replacement method
+\end_layout
+
+\begin_layout Standard
+When Nitsche's method cannot be used, an alternative suitable for certain
+ problems is to force the Dirichlet boundary conditions through a side condition
+ that replaces a subset of the discrete equations with equations that impose
+ the Dirichlet BC.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr replaceBC = EssentialBC(diriSurf, v*(u-uD)/h, quad);
+\end_layout
+
+\end_inset
+
+Division by the cell diameter 
+\begin_inset Formula $h$
+\end_inset
+
+ is optional, but helps improve conditioning of the resulting linear system.
+ 
+\end_layout
+
+\begin_layout Standard
+The most significant drawback of this method is that it destroys any symmetry
+ of the original problem.
+ Nitsche's method is therefore preferred when possible.
+ Note also that the replacement method cannot be used directly on an eigenvalue
+ problem.
+\end_layout
+
+\begin_layout Subsection
+Lagrange multiplier method
+\end_layout
+
+\begin_layout Standard
+In problems arising from a variational principle, Dirichlet boundary conditions
+ can be enforced as a constraint through the method of Lagrange multipliers.
+ Some disadvantages of this method are that the resulting linear system
+ is indefinite, that one must introduce a new variable for the Lagrange
+ multiplier, and that the basis for the multiplier function must be chosen
+ carefully to be consistent with the LBB condition.
+ Indefiniteness can be addressed through the use of an augmented Lagrangian
+ method.
+ 
+\end_layout
+
+\begin_layout Standard
+Because of the close connection to optimization, further discussion of this
+ method is deferred until the section on PDE-constrained optimization.
+ 
+\end_layout
+
+\begin_layout Section
+Miscellaneous
+\end_layout
+
+\begin_layout Subsection
+Point loads and Dirac delta functions
+\end_layout
+
+\begin_layout Standard
+A point source is most conveniently, and accurately, modeled when it is
+ located at a vertex in the mesh.
+ Let 
+\begin_inset Formula $\mathbf{a}$
+\end_inset
+
+ be the location and 
+\begin_inset Formula $q$
+\end_inset
+
+ be the strength of a point load, which enters a weak form through an integral
+ involving the Dirac delta function, 
+\begin_inset Formula \[
+\int_{\Omega}vq\delta(\mathbf{x-a})\, d\Omega\]
+
+\end_inset
+
+which evaluates to 
+\begin_inset Formula $v(\mathbf{a})q(\mathbf{a})$
+\end_inset
+
+.
+ Rather than representing the Dirac delta function we write this integral
+ using a Dirac measure 
+\begin_inset Formula $d\mu_{\mathbf{a}}$
+\end_inset
+
+ so that
+\begin_inset Formula \[
+\int_{\Omega}vq\delta\left(\mathbf{x-a}\right)\, d\Omega=\int_{\Omega}vq\, d\mu_{\mathbf{a}}=\int_{\mathbf{a}}vq\, d\mu_{\mathbf{a}}.\]
+
+\end_inset
+
+Introduce a cell filter 
+\family typewriter
+pointA
+\family default
+ that selects the vertex located at 
+\begin_inset Formula $\mathbf{a}$
+\end_inset
+
+.
+ The above integral would be written
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Expr ptTerm = Integral(pointA, v*q, quad);
+\end_layout
+
+\end_inset
+
+The quadrature argument is an unused placeholder, needed only to maintain
+ consistent syntax.
+ Any integral taken over a zero-cell is interpreted to use the Dirac measure.
+ 
+\end_layout
+
+\begin_layout Subsection
+Absorbing BC
+\end_layout
+
+\begin_layout Section
+Definite integrals
+\end_layout
+
+\begin_layout Subsection
+Probing values
+\end_layout
+
+\begin_layout Chapter
+Problem specifications
+\end_layout
+
+\begin_layout Section
+Orthogonal projections
+\end_layout
+
+\begin_layout Section
+Forward problems
+\end_layout
+
+\begin_layout Subsection
+Linear problems
+\end_layout
+
+\begin_layout Subsubsection
+Blocked variables
+\end_layout
+
+\begin_layout Subsubsection
+Problems with some variables held fixed
+\end_layout
+
+\begin_layout Subsection
+Nonlinear problems
+\end_layout
+
+\begin_layout Subsubsection
+Blocked variables
+\end_layout
+
+\begin_layout Subsubsection
+Problems with some variables held fixed
+\end_layout
+
+\begin_layout Subsection
+Sensitivity analysis
+\end_layout
+
+\begin_layout Subsection
+Spectral uncertainty quantification
+\end_layout
+
+\begin_layout Section
+Optimization
+\end_layout
+
+\begin_layout Subsection
+Functionals and variations
+\end_layout
+
+\begin_layout Subsection
+Full-space optimization
+\end_layout
+
+\begin_layout Subsection
+Reduced-space optimization
+\end_layout
+
+\begin_layout Section
+Eigenvalue problems
+\end_layout
+
+\begin_layout Chapter
+Postprocessing
+\end_layout
+
+\begin_layout Section
+Field writers
+\end_layout
+
+\begin_layout Itemize
+VTK format
+\end_layout
+
+\begin_layout Itemize
+Exodus format
+\end_layout
+
+\begin_layout Itemize
+Column formatted (Matlab, Gnuplot)
+\end_layout
+
+\begin_layout Itemize
+Triangle format
+\end_layout
+
+\begin_layout Itemize
+Verbose
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+appendix
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Debugging tips
+\end_layout
+
+\begin_layout Section
+Diagnostics
+\end_layout
+
+\begin_layout Subsection
+Watch flags
+\end_layout
+
+\begin_layout Standard
+Any 
+\family typewriter
+Integral
+\family default
+ or 
+\family typewriter
+EssentialBC
+\family default
+ function can accept an optional 
+\family typewriter
+WatchFlag
+\family default
+ argument that controls the amount and type of diagnostic information to
+ be printed.
+ The type of information requested A verbosity level of zero means no output
+ will be printed.
+ Amount of diagnostic information increases as the verbosity level increases;
+ typically, level one gives a top-level view of what's being done, whereas
+ level four or above provides considerable detail and values of intermediate
+ calculations such as element integrations and symbolic evaluations.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+WatchFlag watchSource("source term");
+\end_layout
+
+\begin_layout Plain Layout
+
+watchSource.setParam("evaluation", 4);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Expr eqn = Integral(interior, (grad*v)*(grad*u), quad)
+\end_layout
+
+\begin_layout Plain Layout
+
+	+ Integral(interior, v*f, quad, watchSource);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Global watch flags
+\end_layout
+
+\begin_layout Standard
+These diagnostic types can't be localized to a single term in a problem.
+ Setting one of these in any term will enable it for all other terms given
+ to a problem 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="4in">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Name
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+solve control
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+High-level progress reports from solver drivers such as 
+\family typewriter
+LinearProblem
+\family default
+.
+ For details of linear or nonlinear solver progress, use the solver object's
+ verbosity setting.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+eval mediator
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details of communication between symbolic objects and discrete objects.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+assembler setup
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+High-level progress report on the construction of the Assembler object
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+dof map setup
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details on setup of DOF map.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+equation set setup
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+High-level progress report on setup of the EquationSet, the object that
+ organizes the symbolic equations, drives symbolic preprocessing, and determines
+ maps from cell filters to equations and functions
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+matrix config
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Configuration of sparse matrix
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+vector config
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Configuration of vector
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+assembly loop
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+High-level progress report on assembly loop.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Term-specific watch flags
+\end_layout
+
+\begin_layout Standard
+These watch flags will request increased detail for the expression in which
+ they are used.
+ In order to put the information in context, they may also turn on low-verbosity
+ output tracking at the high level.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="4in">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Name
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+evaluation
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details of evaluation of symbolic expressions during assembly loop.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+discrete function evaluation
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details of evaluation of discrete functions during symbolic calculations
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+symbolic preprocessing
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details of expression graph determination and evaluation construction during
+ equation set setup
+\family typewriter
+.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+integration setup
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details about construction of element integrals during assembler setup
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+integration
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details on evaluation of element integrals during assembly loop
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+integral transformation
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details on coordinate transformations during element integration
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\begin_inset Quotes eld
+\end_inset
+
+fill
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Details on target (
+\emph on
+e.g.
+\emph default
+, matrix) loading during assembly loop
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Viewing low-level data structures
+\end_layout
+
+\begin_layout Subsubsection
+Viewing a problem's DOF maps
+\end_layout
+
+\begin_layout Standard
+A 
+\family typewriter
+LinearProblem
+\family default
+ or 
+\family typewriter
+NonlinearProblem
+\family default
+ will have two arrays of DOF maps, one array for the row maps and one for
+ the column maps.
+ The arrays are to deal with block operators: In a problem where the test
+ and unknown functions are grouped into blocks, there will be one row map
+ for each block of test functions and one column map for each block of unknown
+ functions.
+ In the example we show how to print the row maps for a problem (linear
+ or nonlinear) named 
+\family typewriter
+prob
+\family default
+.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for (int r=0; r<prob.numBlockRows(); r++)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Out::root() << "showing DOF map for block row r=" << r << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+	prob.rowMap(r)->print(Out::os());
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Viewing a discrete space's DOF map
+\end_layout
+
+\begin_layout Standard
+A DiscreteSpace has an associated DOF map, which may be accessed through
+ the map() member function.
+ 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+DiscreteSpace discSpace(mesh, basis, vecType);
+\end_layout
+
+\begin_layout Plain Layout
+
+Out::root() << "showing DOF map for discrete space" << endl;
+\end_layout
+
+\begin_layout Plain Layout
+
+discSpace.map()->print(Out::os());
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Viewing a problem's matrices and vectors
+\end_layout
+
+\begin_layout Standard
+The matrix and RHS vector for a discretized 
+\family typewriter
+LinearProblem
+\family default
+ can be obtained by the 
+\family typewriter
+getOperator()
+\family default
+ and 
+\family typewriter
+getSingleRHS()
+\family default
+ member functions.
+ In sensitivity analysis, there may be multiple RHS vectors which can be
+ obtained (as an array) by the 
+\family typewriter
+getRHS()
+\family default
+ member function.
+ 
+\end_layout
+
+\begin_layout Standard
+When working with a nonlinear problem, the current Jacobian and residual
+ can be obtained by calling the 
+\family typewriter
+computeJacobianAndFunction()
+\family default
+ member function.
+ If only the function value is desired, it can be obtained (in 
+\family typewriter
+Vector
+\family default
+ form) by the 
+\family typewriter
+computeFunctionValue()
+\family default
+ function.
+ The current evaluation point in 
+\family typewriter
+Expr
+\family default
+ form may be obtained by the 
+\family typewriter
+getU0()
+\family default
+ member function, or in 
+\family typewriter
+Vector
+\family default
+ form by the 
+\family typewriter
+getInitialGuess()
+\family default
+ function.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Testing differentiation
+\end_layout
+
+\begin_layout Standard
+Differentiation of a functional can be tested against a finite-difference
+ calculation by the 
+\family typewriter
+fdGradientCheck()
+\family default
+ member function of 
+\family typewriter
+FunctionalEvaluator
+\family default
+.
+ While running, it prints detailed information on the gradient vectors obtained
+ through both finite difference and in-place differentiation.
+ The finite difference stepsize is specified as an argument to 
+\family typewriter
+fdGradientCheck()
+\family default
+.
+ The return value is the maximum component of the vector of errors.
+ 
+\end_layout
+
+\begin_layout Section
+Debugger helpers
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Debugger-helpers"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Debugger configuration
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+gdb
+\family default
+ debugger and its various front ends (such as DDD) can be given startup
+ options through the 
+\family typewriter
+.gdbinit
+\family default
+ file.
+ Some useful startup options are 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+set breakpoint pending on
+\end_layout
+
+\begin_layout Plain Layout
+
+break TestForException_break
+\end_layout
+
+\begin_layout Plain Layout
+
+break abort 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The first line is needed for deferred setting of breakpoints when working
+ with dynamically-loaded libraries.
+ The second and third lines set breakpoints in the standard C 
+\family typewriter
+abort()
+\family default
+ function and in the Teuchos 
+\family typewriter
+TestForException_break()
+\family default
+ function.
+ All errors detected by Sundance components are handled by the TEST_FOR_EXCEPTIO
+N() macro described in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Error-checks"
+
+\end_inset
+
+, which internally calls 
+\family typewriter
+TestForException_break()
+\family default
+.
+ The
+\family typewriter
+ abort()
+\family default
+ function may be called by sufficiently catastrophic errors in low-level
+ code.
+ 
+\end_layout
+
+\begin_layout Subsection
+Parallel debugging
+\end_layout
+
+\begin_layout Standard
+The most convenient way to debug in parallel is to use a parallel debugger
+ such as Totalview.
+ If a parallel debugger is not available, it is possible to bind multiple
+ sessions of a gdb-based debugger to multiple jobs running on a single host.
+ 
+\end_layout
+
+\begin_layout Chapter
+Miscellaneous math
+\end_layout
+
+\begin_layout Section
+Helpful formulas and identities
+\end_layout
+
+\begin_layout Subsection
+Outer product (Kronecker product)
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\mathbf{a}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathbf{b}$
+\end_inset
+
+ be vectors in 
+\begin_inset Formula $\R^{N}$
+\end_inset
+
+.
+ Then 
+\begin_inset Formula $\mathbf{a\otimes b}$
+\end_inset
+
+ is the 
+\begin_inset Formula $N\times N$
+\end_inset
+
+ matrix
+\begin_inset Formula \[
+\left(\begin{array}{cccc}
+a_{1}b_{1} & a_{1}b_{2} & \cdots & a_{1}b_{N}\\
+a_{2}b_{1} & a_{2}b_{2}\\
+\vdots &  & \ddots & \vdots\\
+a_{N}b_{1} &  & \cdots & a_{N}b_{N}\end{array}\right).\]
+
+\end_inset
+
+The gradient of a vector-valued function 
+\begin_inset Formula $\mathbf{u}$
+\end_inset
+
+, written 
+\begin_inset Formula $\nabla\mathbf{u}$
+\end_inset
+
+, can be expressed in outer product notation as 
+\begin_inset Formula $\nabla\otimes\mathbf{u}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Colon product (Frobenius product)
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\mathbf{A}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathbf{B}$
+\end_inset
+
+ be 
+\begin_inset Formula $N\times N$
+\end_inset
+
+ matrices.
+ Then the Frobenius product is 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\mathbf{A\colon B}=\sum_{i=1}^{N}\sum_{j=1}^{N}A_{ij}B_{ij}.\]
+
+\end_inset
+
+The Frobenius product is useful in writing the weak form of the Stokes equations.
+ 
+\end_layout
+
+\begin_layout Subsection
+Integral identities
+\end_layout
+
+\begin_layout Standard
+In the following identities 
+\begin_inset Formula $\Omega$
+\end_inset
+
+ is a smooth subset of 
+\begin_inset Formula $\R^{N}$
+\end_inset
+
+ and 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ is its boundary.
+ Notation: 
+\begin_inset Formula $\phi$
+\end_inset
+
+, 
+\begin_inset Formula $u$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ are scalar functions, 
+\begin_inset Formula $\mathbf{v}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathbf{u}$
+\end_inset
+
+ are vector-valued functions, and 
+\begin_inset Formula $\mathbf{K}$
+\end_inset
+
+ is a tensor-valued function.
+ 
+\begin_inset Formula \[
+\int_{\Omega}v\nabla^{2}u\, d\Omega=-\int_{\Omega}\nabla v\cdot\nabla u\, d\Omega+\int_{\Gamma}v\mathbf{n\cdot}\nabla u\, d\Gamma\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\int_{\Omega}v\nabla\cdot\left[\kappa\nabla u\right]\, d\Omega=-\int_{\Omega}\kappa\nabla v\cdot\nabla u\, d\Omega+\int_{\Gamma}v\kappa\mathbf{n\cdot}\nabla u\, d\Gamma\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\int_{\Omega}v\nabla\cdot\left[\mathbf{K}\nabla u\right]\, d\Omega=-\int_{\Omega}\nabla v\cdot\left(\mathbf{K}\cdot\nabla u\right)\, d\Omega+\int_{\Gamma}v\mathbf{n\cdot}\left(\mathbf{K}\cdot\nabla u\right)\, d\Gamma\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\int_{\Omega}\mathbf{v\cdot\nabla}\phi\, d\Omega=-\int_{\Omega}\phi\nabla\cdot\mathbf{v}\, d\Omega+\int_{\Gamma}\phi\mathbf{v\cdot n}\, d\Gamma\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\int_{\Omega}\mathbf{v\cdot\nabla^{2}}\mathbf{u}\, d\Omega=-\int_{\Omega}\nabla\mathbf{v}:\nabla\mathbf{u}\, d\Omega+\int_{\Gamma}\left(\mathbf{n\otimes}\mathbf{v}\right)\colon\nabla\mathbf{u}\, d\Gamma\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+The formal logic of filters
+\end_layout
+
+\begin_layout Definition
+Let 
+\begin_inset Formula $S$
+\end_inset
+
+ be a set.
+ A 
+\emph on
+filter
+\emph default
+ applied to 
+\begin_inset Formula $S$
+\end_inset
+
+ returns a member of the power set of 
+\begin_inset Formula $S$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout --Separator--
+
+\end_layout
+
+\begin_layout Example
+The identity filter 
+\begin_inset Formula $I$
+\end_inset
+
+ acts on 
+\begin_inset Formula $S$
+\end_inset
+
+ to return 
+\begin_inset Formula $S$
+\end_inset
+
+: 
+\begin_inset Formula $I(S)=S$
+\end_inset
+
+.
+ The zero filter 
+\begin_inset Formula $0$
+\end_inset
+
+ produces the empty set: 
+\begin_inset Formula $0(S)=\emptyset$
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Subsection
+Predicates
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+To go beyond those trivial examples we need to find a way of selecting members
+ of a set, which we do using a logical operation called a predicate.
+\end_layout
+
+\begin_layout Definition
+Let 
+\begin_inset Formula $S$
+\end_inset
+
+ be a set.
+ A predicate 
+\begin_inset Formula $p:S\to\left\{ 0,1\right\} $
+\end_inset
+
+ is any function that maps members of 
+\begin_inset Formula $S$
+\end_inset
+
+ to the booleans.
+ 
+\end_layout
+
+\begin_layout Standard
+With a predicate 
+\begin_inset Formula $p$
+\end_inset
+
+, we can filter a finite set 
+\begin_inset Formula $S$
+\end_inset
+
+ by applying the predicate to every member of 
+\begin_inset Formula $S$
+\end_inset
+
+, returning the subset of members such that the predicate evaluates true.
+\end_layout
+
+\begin_layout Definition
+A predicate 
+\begin_inset Formula $p$
+\end_inset
+
+ can define a filter 
+\begin_inset Formula $F^{p}$
+\end_inset
+
+, operating on a set 
+\begin_inset Formula $S$
+\end_inset
+
+ as 
+\begin_inset Formula \[
+F^{p}(S)=\left\{ s\in S\vert p(s)=1\right\} .\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Example
+Let 
+\begin_inset Formula $S=\{1,4,9,16,25,36,49\}.$
+\end_inset
+
+ Define 
+\begin_inset Formula $p(x)=\begin{cases}
+1 & x\mbox{ even}\\
+0 & x\mbox{ odd}\end{cases}$
+\end_inset
+
+.
+ Then 
+\begin_inset Formula $F^{p}(S)=\left\{ 4,16,36\right\} $
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Subsection
+Binary operations between filters
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+We can define binary operations on filters in terms of binary operations
+ on the sets they produce.
+ 
+\end_layout
+
+\begin_layout Definition
+The union, intersection, and difference operations on two filters produce
+ the corresponding operations on the output of the filters.
+ Let 
+\begin_inset Formula $S$
+\end_inset
+
+ be a set and 
+\begin_inset Formula $F_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $F_{2}$
+\end_inset
+
+ be two filters.
+ Then 
+\begin_inset Formula \[
+\left(F_{1}\cup F_{2}\right)\left(S\right)=F_{1}(S)\cup F_{2}(S)\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\left(F_{1}\cap F_{2}\right)\left(S\right)=F_{1}(S)\cap F_{2}(S)\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\left(F_{1}-F_{2}\right)\left(S\right)=F_{1}(S)-F_{2}(S).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+When two filters are defined in terms of predicates, an equivalent definition
+ of the binary operations can be given in terms of the binary logical operations
+ 
+\begin_inset Formula $\vee$
+\end_inset
+
+ (OR) and 
+\begin_inset Formula $\wedge$
+\end_inset
+
+ (AND), and the unary operation 
+\begin_inset Formula $\sim$
+\end_inset
+
+ (NOT).
+ Specifically, 
+\begin_inset Formula \[
+F^{p}\cup F^{q}=F^{p\vee q}\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+F^{p}\cap F^{q}=F^{p\wedge q}\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+F^{p}-F^{q}=F^{p\wedge\sim q}.\]
+
+\end_inset
+
+You can easily verify that these definitions are equivalent to the original
+ definitions in terms of sets.
+\end_layout
+
+\begin_layout Standard
+A filter is not a set, so the normal definition of subset does not apply
+ to filters.
+ However, it's convenient to speak (loosely) of subsets of filters.
+\end_layout
+
+\begin_layout Definition
+A filter 
+\begin_inset Formula $G$
+\end_inset
+
+ is a subset of a filter 
+\begin_inset Formula $F$
+\end_inset
+
+ if 
+\begin_inset Formula $G(S)\subset F(S)$
+\end_inset
+
+ for all 
+\begin_inset Formula $S$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout --Separator--
+
+\end_layout
+
+\begin_layout Example
+All filters are subsets of the identity filter.
+\end_layout
+
+\begin_layout Chapter
+Complete example codes
+\end_layout
+
+\begin_layout Section
+Conjugate gradient example
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+verbatimtabinput[4]{/home/kevin/Code/Trilinos/packages/Sundance/doc/Manual/CGDem
+o.cpp}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Finite difference matrix for Poisson 1D 
+\end_layout
+
+\end_body
+\end_document
